@@ -1,0 +1,103 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@config "../tailwind.config.js";
+
+@custom-variant dark (&:is(.dark *));
+
+@layer base {
+  :root {
+    --radius: 0.75rem;
+    --background: 0 0% 100%;
+    --foreground: 222 47% 11%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+    --primary: 11 100% 51%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 11 100% 96%;
+    --secondary-foreground: 11 100% 20%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 11 100% 51%;
+  }
+
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Only apply hover effects on devices that support hover (non-touch) */
+@media (hover: hover) and (pointer: fine) {
+  .hover-card:hover {
+    border-color: rgba(255, 52, 7, 0.3);
+    box-shadow: 0 20px 25px -5px rgba(255, 52, 7, 0.05), 0 8px 10px -6px rgba(255, 52, 7, 0.05);
+  }
+  .hover-card:hover .hover-badge {
+    background-color: rgba(255, 52, 7, 0.1);
+    color: #ff3407;
+  }
+  .hover-card:hover .hover-title {
+    color: #ff3407;
+  }
+  .hover-card:hover .hover-tag {
+    border-color: rgba(255, 52, 7, 0.1);
+    background-color: rgba(255, 52, 7, 0.05);
+    color: rgba(255, 52, 7, 0.8);
+  }
+  .hover-copy:hover {
+    border-color: #cbd5e1;
+    background-color: #f8fafc;
+    color: #0f172a;
+  }
+  .hover-open:hover {
+    background-color: rgba(255, 52, 7, 0.9);
+    box-shadow: 0 10px 15px -3px rgba(255, 52, 7, 0.3);
+  }
+  .hover-pill:hover {
+    background-color: #e2e8f0;
+    color: #334155;
+  }
+  .hover-search-ring:hover {
+    --tw-ring-color: rgba(255, 52, 7, 0.2);
+    --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+    --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);
+    box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
+  }
+  .hover-nav-link:hover {
+    color: hsl(var(--foreground));
+  }
+  .hover-clear:hover {
+    background-color: rgba(255, 52, 7, 0.05);
+  }
+  .hover-clear-x:hover {
+    background-color: #f1f5f9;
+    color: #475569;
+  }
+}
