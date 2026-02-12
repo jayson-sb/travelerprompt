@@ -243,12 +243,15 @@ export const PromptsIndex = () => {
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState<"all" | PromptCategory>("all");
   const [stickyState, setStickyState] = useState<"hidden" | "full">("hidden");
+  const [isSearchActive, setIsSearchActive] = useState(false);
   const heroRef = useRef<HTMLDivElement>(null);
   const heroSearchRef = useRef<HTMLDivElement>(null);
   const categoriesRef = useRef<HTMLDivElement>(null);
   const stickyInputRef = useRef<HTMLInputElement>(null);
   const stickyToolbarRef = useRef<HTMLDivElement>(null);
   const programmaticScrollRef = useRef(false);
+  const typingTimeoutRef = useRef<number | null>(null);
+  const isTypingRef = useRef(false);
 
   const filteredPrompts = useMemo(() => {
     const query = normalize(search);
@@ -274,10 +277,10 @@ export const PromptsIndex = () => {
   // right below the sticky bar (navbar + sticky bar height).
   const handleHeroSearchFocus = () => {
     if (!categoriesRef.current) return;
+    if (document.activeElement === stickyInputRef.current) return;
     // Lock the sticky bar visible so the scroll handler doesn't hide it mid-scroll
     programmaticScrollRef.current = true;
     setStickyState("full");
-    stickyInputRef.current?.focus();
     // Wait a frame so the sticky toolbar renders and we can measure its real height
     requestAnimationFrame(() => {
       if (!categoriesRef.current) return;
@@ -285,11 +288,23 @@ export const PromptsIndex = () => {
       const toolbarH = stickyToolbarRef.current?.offsetHeight ?? 80;
       const cardsTop = categoriesRef.current.getBoundingClientRect().top;
       const scrollTarget = window.scrollY + cardsTop - (navH + toolbarH + 20);
-      window.scrollTo({ top: scrollTarget, behavior: "smooth" });
-      // Release the lock after the smooth scroll has had time to finish
-      setTimeout(() => {
+      const isSmallScreen = window.innerWidth < 640;
+
+      window.scrollTo({ top: scrollTarget, behavior: isSmallScreen ? "auto" : "smooth" });
+
+      if (isSmallScreen) {
+        // On mobile, focus after scroll to avoid keyboard resize fighting smooth-scroll.
+        window.setTimeout(() => {
+          stickyInputRef.current?.focus({ preventScroll: true });
+        }, 40);
+      } else {
+        stickyInputRef.current?.focus({ preventScroll: true });
+      }
+
+      // Release the lock after scrolling has had time to settle.
+      window.setTimeout(() => {
         programmaticScrollRef.current = false;
-      }, 600);
+      }, isSmallScreen ? 220 : 600);
     });
   };
 
@@ -299,6 +314,12 @@ export const PromptsIndex = () => {
       // Skip if we're in a programmatic scroll (hero focus click)
       if (programmaticScrollRef.current) return;
       if (!heroSearchRef.current) return;
+
+      // Keep toolbar stable while user is interacting with the search box.
+      if (isSearchActive || isTypingRef.current) {
+        setStickyState("full");
+        return;
+      }
 
       const searchBarBottom = heroSearchRef.current.getBoundingClientRect().bottom;
 
@@ -313,6 +334,14 @@ export const PromptsIndex = () => {
     window.addEventListener("scroll", handleScroll, { passive: true });
     handleScroll();
     return () => window.removeEventListener("scroll", handleScroll);
+  }, [isSearchActive]);
+
+  useEffect(() => {
+    return () => {
+      if (typingTimeoutRef.current !== null) {
+        window.clearTimeout(typingTimeoutRef.current);
+      }
+    };
   }, []);
 
   const isVisible = stickyState !== "hidden";
@@ -509,7 +538,21 @@ export const PromptsIndex = () => {
                 className="h-7 border-none bg-transparent shadow-none focus-visible:ring-0 placeholder:text-muted-foreground/60 text-xs ml-1.5 sm:h-8 sm:text-sm sm:ml-2"
                 placeholder="Search prompts..."
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                onFocus={() => {
+                  setIsSearchActive(true);
+                  setStickyState("full");
+                }}
+                onBlur={() => setIsSearchActive(false)}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  isTypingRef.current = true;
+                  if (typingTimeoutRef.current !== null) {
+                    window.clearTimeout(typingTimeoutRef.current);
+                  }
+                  typingTimeoutRef.current = window.setTimeout(() => {
+                    isTypingRef.current = false;
+                  }, 800);
+                }}
               />
               {search && (
                 <button

@@ -40,850 +40,731 @@ export const promptLibrary: PromptEntry[] = [
   // ── Flights ──────────────────────────────────────────────────────────
   {
     id: "flight-cashback-compare",
-    title: "Compare flight bookings to maximize savings and rewards",
+    title: "Compare flight bookings to get the best total value",
     summary:
-      "Walk through a step-by-step workflow to compare flight booking channels, factoring in rebates, card rewards, and net effective cost.",
+      "A step-by-step workflow to compare fares across channels, including baggage, fees, and flexibility—so you pay less overall.",
     category: "Flights",
     intent: "comparison",
     purpose:
-      "Teaches users to evaluate flight bookings through a rewards lens instead of just looking at base price. The workflow normalizes checking reward platforms and card benefits as a standard part of flight booking.",
-    tags: ["flights", "rewards", "comparison", "workflow"],
+      "Helps travelers look past headline prices and choose the option with the lowest true cost and the right flexibility for their trip.",
+    tags: ["flights", "comparison", "fees", "flexibility"],
     variables: [
+      { key: "party", label: "Travel party", placeholder: "solo / couple / family / friends", example: "couple" },
       { key: "origin", label: "Origin city", placeholder: "e.g. Singapore", example: "Singapore" },
       { key: "destination", label: "Destination city", placeholder: "e.g. Tokyo", example: "Tokyo" },
       { key: "month", label: "Travel month", placeholder: "e.g. October", example: "October" },
+      { key: "budget", label: "Flight budget", placeholder: "e.g. $900 per person or 'mid-range'", example: "$900 per person" },
     ],
     whenToUse: [
-      "When you have a specific flight route in mind and want to find the best overall price across channels",
-      "Before committing to any single booking site",
-      "When you want to factor in rebates and card rewards — not just the ticket price",
+      "When you have a route in mind and want the best total price (not just the cheapest fare)",
+      "Before booking on any single site",
+      "When baggage/seat fees and change rules might swing the real cost",
     ],
-    promptTemplate: `I want to book a return flight from {{origin}} to {{destination}} in {{month}}. Help me build a comparison workflow to find the best overall price factoring in rebates and card rewards.
+    promptTemplate: `I want to book a return flight from {{origin}} to {{destination}} in {{month}}. I'm traveling as a {{party}} and my rough budget is {{budget}}. Help me build a comparison workflow to get the best total value.
 
-Step 1 — Identify booking channels: List the major channels where I could book this route (online travel agencies, airline direct, metasearch tools). For each, note whether it typically supports rewards platform tracking and whether booking direct earns airline loyalty points.
+Step 1 — Where to check: List the main places I should compare (airline direct, major OTAs, metasearch tools). Include what each is best for (price, flexibility, customer support, easy changes).
 
-Step 2 — Comparison worksheet: Create a blank table I can fill in as I gather quotes, with these columns: Channel | Base Price | Fees & Taxes | Promo Code Value | Rebate Rate (illustrative: typically 1–6% for flights) | Rebate Cap | Card Rewards Rate | Net Effective Cost | Notes (loyalty points, flexibility, baggage).
+Step 2 — A comparison worksheet: Create a blank table I can fill in with these columns:
+Channel | Fare | Bags (carry-on/checked) | Seat selection | Payment fees / FX fees | Change/cancel rules | Total all-in cost | Notes (layovers, arrival time, reliability).
 
-Step 3 — Tradeoff analysis: Explain the key tradeoffs between booking via an OTA with rebates vs. booking direct with the airline (loyalty points, seat selection, change/cancel flexibility, price matching).
+Step 3 — “Cheapest” vs “best value”: Explain the tradeoffs between booking direct vs an OTA (support during disruptions, changes/refunds, seat selection, schedule changes).
 
-Step 4 — Rewards Capture Checklist: Before I click "book," remind me to: (a) open my rewards platform first, (b) verify the current rate and any caps, (c) check cookie/tracking hygiene (clear cookies, disable ad blockers if needed, use web vs. in-app as required), (d) screenshot the activation, (e) note the order ID for claims, (f) confirm no conflicting coupon terms that void rewards.
+Step 4 — Before you click “Pay” checklist: Remind me to verify (a) passenger names match passport, (b) baggage rules, (c) fare class and what’s included, (d) total price in the right currency, (e) whether the site is offering dynamic currency conversion and how to avoid it, (f) refund/change rules and deadlines, (g) contact/support path.
 
-Step 5 — Suggest 2–3 follow-up prompts I can ask after I collect real quotes to help me make the final decision.`,
+Step 5 — After I collect 3–5 quotes: Suggest 2–3 follow-up prompts I can ask you to help me pick the best option.`,
   },
   {
     id: "flight-budget-maximizer",
-    title: "Maximize savings on budget airline tickets",
+    title: "Budget airline booking playbook (avoid add-on traps)",
     summary:
-      "A complete strategy for budget carriers covering add-on economics, promo stacking, and a rewards tracking checklist.",
+      "A practical strategy for low-cost carriers covering timing, add-ons, fare types, and checkout gotchas.",
     category: "Flights",
     intent: "optimization",
     purpose:
-      "Helps users see budget airline bookings as multi-layered savings opportunities — not just cheap base fares — by incorporating add-on economics and rewards tracking into the decision.",
-    tags: ["budget airlines", "savings", "add-ons", "stacking"],
+      "Helps travelers reduce the real cost of budget flights by planning add-ons intentionally and choosing the right booking path.",
+    tags: ["budget airlines", "add-ons", "savings", "strategy"],
     variables: [
+      { key: "party", label: "Travel party", placeholder: "solo / couple / family / friends", example: "friends" },
       { key: "origin", label: "Origin city", placeholder: "e.g. Kuala Lumpur", example: "Kuala Lumpur" },
       { key: "destination", label: "Destination city", placeholder: "e.g. Bali", example: "Bali" },
+      { key: "budget", label: "Flight budget", placeholder: "e.g. $250 per person or 'tight'", example: "$250 per person" },
     ],
     whenToUse: [
       "When booking low-cost carriers",
-      "When you want to understand if add-ons (bags, seats, meals) are worth it vs. booking separately",
-      "When deciding between using a promo code or going through a rewards platform",
+      "When you want to decide which add-ons are worth it",
+      "When you want to avoid common checkout upsells and fees",
     ],
-    promptTemplate: `I'm booking a budget airline flight from {{origin}} to {{destination}}. Help me maximize my total savings with a structured approach.
+    promptTemplate: `I'm booking a budget airline flight from {{origin}} to {{destination}}. I'm traveling as a {{party}} and my rough budget is {{budget}}. Help me maximize savings with a structured approach.
 
-1. Booking timing: When should I book relative to my travel date for the best base fare? Cover any general patterns for budget carriers (e.g., mid-week pricing, advance purchase windows).
+1. Booking timing: Share general patterns that can help (when prices typically move, what to watch for, and when to set price alerts).
 
-2. Add-on economics: For each common add-on (checked baggage, seat selection, meals, priority boarding, travel insurance), explain when it's better to buy it bundled at booking vs. separately later vs. skipping entirely. Note which add-ons might be covered by my credit card benefits.
+2. Fare types explained: Compare “basic” vs “bundle” vs “flex” style fares. When does paying more up front reduce the total cost (bags, seats, changes)?
 
-3. Promo code vs. rebates decision rules: If the airline has an active promo code and my rewards platform also offers a rate, walk me through how to decide which to use. Cover: Can they stack? If not, which typically delivers more value? What are the common exclusion rules that void rewards when using certain promo codes?
+3. Add-on economics: For each add-on (checked baggage, seats, meals, priority boarding, insurance), explain when to buy at booking vs later vs skip. Flag the add-ons that are usually poor value.
 
-4. Booking channel comparison: Should I book via the airline's website, app, or through a third-party OTA? For each channel, note the rewards eligibility, price differences, and flexibility tradeoffs.
+4. Channel choices: Should I book via the airline site, airline app, or an OTA? Compare price differences, ease of changes, and support during disruptions.
 
-5. Rewards Capture Checklist: Before completing the booking, remind me to: (a) activate my rewards platform, (b) verify the current rate and cap for the airline or OTA, (c) check tracking requirements (web vs. app, cookie hygiene), (d) screenshot the activation and note the order confirmation number, (e) verify promo code and rewards compatibility.
+5. Checkout checklist: Remind me to double-check currency, payment fees, baggage rules, seat charges, and any pre-ticked boxes before paying.
 
-6. Suggest 2 follow-up prompts I can use after booking to track my savings and optimize future budget flights.`,
+6. Suggest 2 follow-up prompts I can use after I find 2–3 fare options to choose the best one.`,
   },
   {
     id: "flight-error-fare-alert",
-    title: "Spot and act on flight error fares",
+    title: "Error fares: how to verify and book safely",
     summary:
-      "A speed-and-risk playbook for identifying error fares, booking fast, and understanding rewards tracking risks.",
+      "A speed-and-risk playbook for spotting error fares, booking fast, and reducing the chance of expensive mistakes.",
     category: "Flights",
     intent: "strategy",
     purpose:
-      "Teaches users the error fare workflow while being transparent about rewards tracking risks — building trust in the rewards ecosystem even when outcomes are uncertain.",
-    tags: ["error fares", "savings", "speed", "risk"],
-    variables: [],
-    whenToUse: [
-      "When you see a suspiciously cheap flight and want to verify if it's an error fare",
-      "When you want a ready-made action plan for the next time an error fare appears",
-      "When you want to understand whether rewards will track on error fares",
+      "Teaches a calm, repeatable workflow for error fares—move quickly, protect yourself, and avoid locking in non-refundable extras too early.",
+    tags: ["error fares", "speed", "risk", "workflow"],
+    variables: [
+      { key: "party", label: "Travel party", placeholder: "solo / couple / family / friends", example: "family" },
+      { key: "budget", label: "Budget", placeholder: "e.g. $2000 total or 'tight'", example: "$2000 total" },
     ],
-    promptTemplate: `Explain flight error fares and give me a complete speed-and-risk playbook for acting on them.
+    whenToUse: [
+      "When you see a suspiciously cheap flight",
+      "When you want a safe protocol for booking fast",
+      "When you need to understand what to do after booking",
+    ],
+    promptTemplate: `I might book an error fare. I'm traveling as a {{party}} and my rough budget is {{budget}}. Explain flight error fares and give me a complete speed-and-risk playbook for acting on them.
 
-1. What are error fares? Briefly explain how they happen (pricing system glitches, currency conversion errors, missing fuel surcharges) and how often airlines actually honour them.
+1. What are error fares? Briefly explain how they happen and how often airlines honor them.
 
-2. How to spot them: List the most reliable sources to monitor for error fares (communities, social media accounts, alert services, fare comparison tools). What price thresholds or patterns suggest a fare is an error vs. a legitimate sale?
+2. How to spot them: List reliable places to verify quickly (metasearch, airline site, known communities/alerts). What patterns suggest “error” vs a real sale?
 
-3. Speed protocol — when I find one: Give me a step-by-step action plan optimized for speed: (a) verify the fare on a second source, (b) book immediately (don't wait), (c) use a credit card with travel protections, (d) book refundable if possible, (e) don't call the airline to ask about the fare.
+3. Speed protocol: Give a step-by-step action plan optimized for speed but safe decision-making (verify once, book once, avoid unnecessary calls, use a payment method with strong dispute protections).
 
-4. Rewards considerations: Be honest about tracking risks — will rewards platforms typically honour transactions on error fares? What happens if the fare is cancelled — do rewards get clawed back? Should I still route through my rewards platform, and what evidence should I capture (screenshots, confirmation emails, activation proof)?
+4. Post-booking caution: What NOT to book immediately (non-refundable hotels, tours), and what you can do safely (refundable options, holding plans). Include a timeline for waiting for ticketing confirmation.
 
-5. Post-booking: What to do after booking — when to book hotels/activities (wait vs. go ahead), how to monitor if the airline cancels, timeline expectations, and how to file a chargeback or rewards claim if things go wrong.
+5. If it gets canceled: What are my realistic outcomes and next steps (refund timeline, documentation to keep, how to rebook smartly).
 
-6. Suggest 2 follow-up prompts for monitoring error fare sources and understanding airline cancellation policies.`,
+6. Suggest 2 follow-up prompts for monitoring sources and understanding cancellation policies.`,
   },
 
   // ── Hotels ───────────────────────────────────────────────────────────
   {
     id: "hotel-cashback-stacking",
-    title: "Stack hotel rewards for maximum savings",
+    title: "Book hotels smarter: direct vs OTA and true total cost",
     summary:
-      "Navigate the tradeoffs between booking direct vs. OTAs, and learn how to layer loyalty points, card perks, and rebates without conflicts.",
+      "Compare direct and OTA bookings with a focus on total cost, fees, flexibility, and real value (not just the nightly rate).",
     category: "Hotels",
     intent: "optimization",
     purpose:
-      "Normalizes the habit of evaluating hotel bookings across three reward layers (loyalty, card benefits, rebates) and understanding when they can coexist vs. conflict.",
-    tags: ["hotels", "rewards stacking", "loyalty", "direct vs OTA"],
+      "Helps travelers choose the best-value hotel booking by factoring in taxes, resort fees, cancellation rules, and included perks like breakfast or parking.",
+    tags: ["hotels", "direct vs OTA", "fees", "value"],
     variables: [
+      { key: "party", label: "Travel party", placeholder: "solo / couple / family / friends", example: "couple" },
       { key: "destination", label: "Destination city", placeholder: "e.g. Bangkok", example: "Bangkok" },
       { key: "nights", label: "Number of nights", placeholder: "e.g. 4", example: "4" },
       { key: "budget", label: "Nightly budget (USD)", placeholder: "e.g. 150", example: "150" },
     ],
     whenToUse: [
-      "When you want to earn the most from a hotel stay across loyalty, credit card, and rebates",
-      "When deciding whether to book directly with the hotel or through an OTA",
-      "When you want to understand which reward layers can stack and which conflict",
+      "When choosing between booking direct vs an OTA",
+      "When fees and cancellation rules might change the best option",
+      "When you’re trying to maximize value at a specific budget",
     ],
-    promptTemplate: `I'm booking a hotel in {{destination}} for {{nights}} nights at around \${{budget}}/night. Help me maximize rewards by stacking loyalty points, credit card perks, and rebates.
+    promptTemplate: `I'm booking a hotel in {{destination}} for {{nights}} nights at around \${{budget}}/night. I'm traveling as a {{party}}. Help me pick the best-value booking option.
 
-1. Direct vs. OTA tradeoffs: Compare booking directly on the hotel's website vs. through online travel agencies. For each path, explain what I gain and lose: loyalty points, member-only rates, room upgrades, status nights, cancellation flexibility, and rewards platform eligibility.
+1. Direct vs OTA tradeoffs: Compare booking direct vs OTAs with focus on: cancellation flexibility, support during issues, room type accuracy, fees, and chances of upgrades/benefits.
 
-2. The three reward layers: For a hotel stay at this price point, walk me through each stacking layer:
-   - Layer 1: Hotel loyalty program (points per dollar, status benefits, member rates)
-   - Layer 2: Credit card rewards (travel cards with bonus hotel categories, card-linked offers, complimentary perks like breakfast or upgrades)
-   - Layer 3: Rewards platform (illustrative range: typically 2–8% for hotels through OTAs)
-   Explain which combinations can stack and which are mutually exclusive (e.g., OTA rebates usually mean no hotel loyalty points).
+2. True total cost checklist: List what I must include to compare fairly (taxes, resort/city fees, breakfast, parking, Wi‑Fi, extra bed, deposit/holds).
 
-3. Double-dip caveats: What are the common gotchas? Cover: OTA bookings not earning loyalty points, prepaid vs. pay-at-hotel rebate differences, rate parity issues, and promo code conflicts with rewards tracking.
+3. Rate types explained: Prepaid vs pay-at-property vs refundable vs non-refundable. When does paying more for flexibility save money overall?
 
-4. Worked example template: Provide a worksheet I can fill in with real numbers, with columns: Booking Channel | Room Rate | Loyalty Points Value | Card Rewards Value | Rebates Value | Net Effective Cost | Flexibility Rating. Include one illustrative example row (clearly labeled as illustrative).
+4. Worked worksheet: Provide a fillable table:
+Channel | Nightly rate | Taxes/fees | Value of inclusions | Cancellation terms | Total trip cost | Notes.
 
-5. Rewards Capture Checklist: Before booking, remind me to: (a) check if the hotel has a loyalty program I should join first, (b) activate my rewards platform, (c) verify the rate and cap, (d) compare the OTA-with-rebates price against the direct member rate, (e) screenshot activation, (f) check my card's hotel category bonus.
+5. Booking checklist: Remind me to verify the final price, currency, cancellation deadline, and what exactly is included before paying.
 
-6. Suggest 2 follow-up prompts to help me decide between direct and OTA for my specific booking.`,
+6. Suggest 2 follow-up prompts once I’ve gathered 3–5 quotes.`,
   },
   {
     id: "hotel-last-minute-deals",
-    title: "Find last minute hotel savings with rewards",
+    title: "Last-minute hotel booking strategy",
     summary:
-      "A channel strategy for short-notice hotel bookings covering mobile vs. desktop, refundable vs. non-refundable, and rewards tracking.",
+      "A fast workflow for booking on short notice: best channels, mobile vs desktop, and refundable vs non-refundable tradeoffs.",
     category: "Hotels",
     intent: "strategy",
     purpose:
-      "Ensures users don't abandon the rewards mindset when booking under time pressure. Establishes a rapid-booking workflow that still captures rebates and card rewards.",
-    tags: ["last-minute", "hotels", "channel strategy", "mobile"],
+      "Gives travelers a clear, repeatable way to book quickly without overpaying or choosing the wrong cancellation policy.",
+    tags: ["last-minute", "hotels", "channels", "workflow"],
     variables: [
+      { key: "party", label: "Travel party", placeholder: "solo / couple / family / friends", example: "solo" },
       { key: "destination", label: "Destination city", placeholder: "e.g. Seoul", example: "Seoul" },
+      { key: "budget", label: "Budget", placeholder: "e.g. $180/night or 'mid-range'", example: "$180/night" },
     ],
     whenToUse: [
       "When you need a hotel within the next 48 hours",
-      "When comparing mobile app vs. desktop booking for last-minute stays",
-      "When you want to earn rewards even on rushed bookings",
+      "When comparing app-only prices vs desktop",
+      "When you need to balance price vs flexibility fast",
     ],
-    promptTemplate: `I need a hotel in {{destination}} within the next 48 hours. Give me a channel strategy for finding the best price while still earning rewards.
+    promptTemplate: `I need a hotel in {{destination}} within the next 48 hours. I'm traveling as a {{party}} and my rough budget is {{budget}}. Give me a channel strategy for finding the best price quickly.
 
-1. Channel comparison: Compare the main channels for last-minute bookings: hotel apps with mobile-only rates, online travel agencies, same-day booking apps, and calling the hotel directly. For each, note: typical discount vs. standard rate, rewards platform compatibility, and any mobile-vs-desktop price differences.
+1. Channel comparison: Compare hotel direct, major OTAs, last-minute/same-day apps, and calling the property. Note typical price behavior and flexibility.
 
-2. Booking strategy by urgency:
-   - 24–48 hours out: What approaches work best? (flexible date search, nearby alternatives, prepay discounts)
-   - Same-day: Different tactics? (walk-in negotiation, app-only flash prices, loyalty member rates)
+2. Urgency tactics:
+   - 24–48 hours out: what works best?
+   - Same-day: what changes (negotiation, app flash prices, nearby neighborhoods)?
 
-3. Refundable vs. non-refundable: When does it make sense to pay more for a refundable rate at last-minute, and when should I commit to non-refundable for the deeper discount? How does this interact with rewards (does refundable vs. non-refundable affect tracking)?
+3. Refundable vs non-refundable: Give decision rules and examples of when it’s worth paying more for refundability.
 
-4. Rewards on rushed bookings: Even when booking fast, walk me through how to still capture rewards: (a) which rewards platforms support mobile booking, (b) whether to book via app or web for tracking purposes, (c) credit card travel category bonuses to consider.
+4. Fast checklist (30 seconds): A minimal checklist before booking: final price, fees, location, cancellation deadline, and room type.
 
-5. Rewards Capture Checklist (speed version): A quick 30-second checklist for activating rewards even under time pressure: (a) open rewards platform or app, (b) verify the hotel/OTA is eligible, (c) click through, (d) screenshot, (e) complete booking.
-
-6. Suggest 2 follow-up prompts for comparing the quotes I find and verifying my rewards tracked correctly.`,
+5. Suggest 2 follow-up prompts for comparing my top 3 options.`,
   },
   {
     id: "hotel-vs-rental",
-    title: "Hotel vs. short term rental: total cost with rewards",
+    title: "Hotel vs short-term rental: true cost comparison",
     summary:
-      "Compare hotels and short-term rentals factoring in rewards availability, hidden fees, and which booking channels earn rewards.",
+      "A worksheet-style comparison that includes all fees, space needs, and flexibility—so you pick the best-value stay.",
     category: "Hotels",
     intent: "comparison",
     purpose:
-      "Highlights that rewards availability differs significantly between hotels and short-term rentals, helping users factor this into their accommodation decision.",
-    tags: ["comparison", "rental", "rewards", "total cost"],
+      "Helps travelers avoid surprise fees and choose the stay that best matches their group size, plans, and risk tolerance.",
+    tags: ["comparison", "rental", "total cost", "fees"],
     variables: [
+      { key: "party", label: "Travel party", placeholder: "solo / couple / family / friends", example: "family" },
       { key: "destination", label: "Destination city", placeholder: "e.g. Barcelona", example: "Barcelona" },
       { key: "nights", label: "Number of nights", placeholder: "e.g. 5", example: "5" },
       { key: "travelers", label: "Number of travelers", placeholder: "e.g. 4", example: "4" },
+      { key: "budget", label: "Budget", placeholder: "e.g. $250/night or '$1200 total'", example: "$250/night" },
     ],
     whenToUse: [
-      "When deciding between a hotel and a short-term rental for your trip",
-      "When traveling with a group and weighing cost vs. reward earning potential",
-      "When you want to understand which accommodation types earn rebates",
+      "When deciding between a hotel and a short-term rental",
+      "When traveling as a group and comparing space vs cost",
+      "When you want to factor in cleaning/service fees and policies",
     ],
-    promptTemplate: `I'm traveling to {{destination}} for {{nights}} nights with {{travelers}} people. Help me compare staying at a hotel vs. a short-term rental with a focus on total cost including rewards.
+    promptTemplate: `I'm traveling to {{destination}} for {{nights}} nights with {{travelers}} people. We're traveling as a {{party}} and our rough budget is {{budget}}. Help me compare a hotel vs a short-term rental based on true total cost and practicality.
 
-1. True cost comparison: Build a side-by-side worksheet I can fill in:
-   Hotel column: Nightly rate, taxes, resort/city fees, parking, breakfast cost, total before rewards.
-   Rental column: Nightly rate, cleaning fee, service fee, taxes, utilities/extras, total before rewards.
+1. True cost worksheet: Create a side-by-side table I can fill in.
+Hotel: nightly rate, taxes, resort/city fees, parking, breakfast, total.
+Rental: nightly rate, cleaning fee, service fee, taxes, deposits, utilities/extras, total.
 
-2. Rewards availability gap: Explain honestly which option earns more rewards. Cover:
-   - Hotels: rewards platforms typically offer rates on OTA hotel bookings (illustrative: 2–8%); hotel loyalty points; credit card hotel category bonuses.
-   - Short-term rentals: rewards availability is often more limited — many rental platforms have minimal or no rewards platform coverage.
+2. Practicality factors: Compare location convenience, check-in friction, space/privacy, laundry/kitchen value, and cancellation risk.
 
-3. Hybrid approach: For groups, is it ever better to split — some nights in a hotel (earning rewards) and some in a rental (more space)? When does this make sense?
+3. Hybrid idea: When does it make sense to split (some nights hotel, some nights rental)?
 
-4. Hidden costs and flexibility: Compare cancellation policies, deposit requirements, check-in flexibility, and any costs that aren't immediately obvious (currency conversion fees, damage deposits, key exchange fees).
+4. Hidden costs: List the common “gotchas” that change the real cost.
 
-5. Rewards Capture Checklist: For whichever option I choose, remind me to: (a) check if the booking platform is available through my rewards platform, (b) verify tracking requirements, (c) use the right credit card for the accommodation category, (d) screenshot activation.
-
-6. Suggest 2 follow-up prompts for making the final decision after I've gathered real quotes.`,
+5. Suggest 2 follow-up prompts after I gather 2 hotel options and 2 rental options.`,
   },
 
   // ── Packages ─────────────────────────────────────────────────────────
   {
     id: "package-deal-builder",
-    title: "Bundle vs. separate bookings: maximize trip rewards",
+    title: "Bundle vs separate: what’s cheaper for your trip?",
     summary:
-      "Decide when to bundle flights + hotel vs. booking separately to earn more rebates and rewards overall.",
+      "A decision framework to compare packages against separate bookings using total cost, flexibility, and hassle factor.",
     category: "Packages",
     intent: "optimization",
     purpose:
-      "Teaches users that the best total rewards outcome often comes from strategically choosing when to bundle and when to book separately — normalizing rebates as a key decision factor.",
-    tags: ["packages", "bundling", "separate bookings", "rewards"],
+      "Helps travelers make a clean bundle-vs-separate decision by comparing like-for-like prices and the real cost of changes and cancellations.",
+    tags: ["packages", "bundling", "comparison", "total cost"],
     variables: [
+      { key: "party", label: "Travel party", placeholder: "solo / couple / family / friends", example: "friends" },
       { key: "destination", label: "Destination city", placeholder: "e.g. Osaka", example: "Osaka" },
       { key: "duration", label: "Trip duration (days)", placeholder: "e.g. 7", example: "7" },
       { key: "travelers", label: "Number of travelers", placeholder: "e.g. 2", example: "2" },
+      { key: "budget", label: "Total budget", placeholder: "e.g. $2500 total or 'mid-range'", example: "$2500 total" },
     ],
     whenToUse: [
-      "When planning a trip and wondering if a package or separate bookings will save more overall",
-      "When you want to understand where rebates apply — bundles vs. individual components",
-      "When comparing OTA packages against booking flights and hotels independently",
+      "When choosing between a flight+hotel package vs separate bookings",
+      "When you want to compare flexibility and support, not just price",
+      "When you want a worksheet to decide quickly",
     ],
-    promptTemplate: `Help me plan a {{duration}}-day trip to {{destination}} for {{travelers}} people. I want to understand whether bundling (flight + hotel package) or booking each component separately earns me more total rewards.
+    promptTemplate: `Help me plan a {{duration}}-day trip to {{destination}} for {{travelers}} people. We're traveling as a {{party}} and our rough budget is {{budget}}. I want to decide whether bundling (flight + hotel package) or booking separately is cheaper and smarter.
 
-1. Bundle vs. separate tradeoffs: Explain the pros and cons of each approach:
-   - Bundled package (OTA packages): typically lower headline price, but how does rewards tracking work on bundles? Are rates applied to the total or just one component? What about loyalty points and flexibility?
-   - Separate bookings (flight + hotel + activities independently): more control, ability to optimize rebates per component, earn loyalty points per channel, but potentially higher total base price.
+1. Bundle vs separate tradeoffs: Compare pros/cons focusing on total cost, cancellation/change rules, and how easy it is to fix problems.
 
-2. Component-by-component worksheet: Create a table I can fill in with real quotes:
-   Component | Bundle Price | Separate Price | Rewards Channel | Illustrative Rebate % | Card Rewards | Loyalty Points | Net Cost
-   Rows: Flights, Accommodation, Airport Transfer, Activities/Tours, Travel Insurance.
+2. Fillable worksheet: Create a table:
+Component | Bundle option price | Separate option price | What’s included | Cancellation/change rules | Notes.
+Rows: Flights, Accommodation, Airport Transfer, Activities/Tours, Travel Insurance.
 
-3. Where rebates commonly apply: For each trip component, note which booking channels typically offer rewards platform tracking. Be honest about where rebates are strong (OTA hotels, some flights) vs. weak (activities, local transport).
+3. Where bundles hide cost: Call out common areas where the “headline” package price differs from the real cost (room types, baggage, transfer assumptions, taxes/fees).
 
-4. Decision framework: Give me a simple rule of thumb for when bundles beat separate bookings from a total-rewards perspective, and vice versa.
+4. Decision rules: Give simple rules of thumb for when bundles usually win vs when separate booking is safer/better value.
 
-5. Rewards Capture Checklist: For each component I end up booking, remind me to: (a) check my rewards platform for that merchant category, (b) note any caps or exclusions, (c) activate and screenshot before each booking, (d) use the optimal credit card per category.
-
-6. Suggest 2 follow-up prompts for once I've gathered quotes in both approaches.`,
+5. Suggest 2 follow-up prompts after I gather quotes.`,
   },
   {
     id: "honeymoon-savings-plan",
-    title: "Plan a honeymoon with rewards on every booking",
+    title: "Plan a honeymoon with smart splurge-vs-save choices",
     summary:
-      "Design a honeymoon itinerary with a rewards strategy for each booking, using conditional rebate estimates.",
+      "Design a honeymoon itinerary with a realistic budget, clear tradeoffs, and smart places to save without sacrificing the experience.",
     category: "Packages",
     intent: "planning",
     purpose:
-      "Shows that even premium/luxury travel benefits from a rewards-first approach. Uses conditional language for rebates to stay honest while reinforcing the checking habit.",
-    tags: ["honeymoon", "luxury", "rewards", "planning"],
+      "Turns a big trip into a calm plan: prioritize what matters, control the big-ticket items, and avoid expensive last-minute decisions.",
+    tags: ["honeymoon", "luxury", "planning", "budget"],
     variables: [
+      { key: "party", label: "Travel party", placeholder: "solo / couple / family / friends", example: "couple" },
       { key: "destination", label: "Destination", placeholder: "e.g. Maldives", example: "Maldives" },
       { key: "duration", label: "Trip duration (days)", placeholder: "e.g. 10", example: "10" },
       { key: "budget", label: "Total budget (USD)", placeholder: "e.g. 8000", example: "8000" },
     ],
     whenToUse: [
-      "When planning a honeymoon or special occasion trip with a larger budget",
-      "When you want to earn meaningful rewards on premium bookings",
-      "When you want a full itinerary with a rewards strategy built in",
+      "When planning a honeymoon or special occasion trip",
+      "When you want to balance splurges with smart savings",
+      "When you want a budget-first itinerary",
     ],
-    promptTemplate: `Plan a {{duration}}-day honeymoon to {{destination}} with a budget of \${{budget}}. For every booking in the itinerary, include a rewards strategy.
+    promptTemplate: `Plan a {{duration}}-day honeymoon to {{destination}}. We're traveling as a {{party}} with a budget of \${{budget}}. I want an itinerary that feels special but stays on budget.
 
-1. Itinerary outline: Suggest a day-by-day outline covering: flights, luxury accommodation (1–2 options at different price tiers), romantic dining, activities/excursions, and transfers.
+1. Itinerary outline: Suggest a day-by-day outline: flights, accommodation options (2 tiers), dining, activities/excursions, and transfers.
 
-2. Rewards strategy per booking: For each component in the itinerary, note:
-   - Recommended booking channel (direct vs. OTA)
-   - Whether rewards platform tracking is typically available for this type of booking (be honest — if it's unlikely, say so)
-   - If available, an illustrative rebate range (clearly labeled as "typical range, verify on your platform": e.g., hotels via OTA 3–7%, flights 1–4%)
-   - Credit card category that would earn bonus rewards
-   - Loyalty program to enroll in before booking
+2. Booking strategy per component: For each component, suggest the best approach (when to book, what to compare, refundable vs non-refundable, where upgrades matter most).
 
-3. Budget worksheet: Create a budget table with columns: Component | Estimated Cost | Booking Channel | Rebates Available? | Illustrative Rebates | Card Rewards | Loyalty Points | Notes. Leave it fillable so I can plug in real numbers.
+3. Budget worksheet: Create a fillable budget table:
+Component | Estimated cost | Booking approach | Flexibility level | Notes.
 
-4. Splurge-vs-save guide: For a honeymoon, where should I splurge (experiences, room quality) vs. save (transfers, certain meals)? Factor in where rewards offset the cost most.
+4. Splurge vs save: Recommend where to splurge (high-impact experiences) and where to save (low-impact swaps).
 
-5. Rewards Capture Checklist: Before each booking, remind me to: (a) check if the merchant/platform is on my rewards platform, (b) activate tracking, (c) use the right card, (d) screenshot and record. Note that honeymoon bookings are often high-value, so even small rebate percentages yield meaningful amounts.
+5. Booking checklist: A short checklist before each purchase to avoid expensive mistakes.
 
-6. Suggest 2 follow-up prompts for finalizing the itinerary and maximizing rewards on the specific bookings I choose.`,
+6. Suggest 2 follow-up prompts once I pick my top options.`,
   },
 
   // ── Transport ────────────────────────────────────────────────────────
   {
     id: "car-rental-cashback",
-    title: "Save on car rentals with rewards",
+    title: "Car rental costs explained (get the best rate, avoid surprises)",
     summary:
-      "Compare rental channels covering prepay vs. pay-at-counter, insurance decisions, and rewards tracking.",
+      "Compare channels, prepay vs pay-at-counter, insurance choices, and hidden fees to lower the real cost of renting a car.",
     category: "Transport",
     intent: "comparison",
     purpose:
-      "Brings the rewards lens into car rental decisions, which travelers often book without considering rebates. Covers the full cost picture including insurance and hidden fees.",
-    tags: ["car rental", "insurance", "rewards", "hidden fees"],
+      "Helps travelers reduce car rental cost by understanding insurance, deposit holds, fuel policies, and common fee traps.",
+    tags: ["car rental", "insurance", "hidden fees", "comparison"],
     variables: [
+      { key: "party", label: "Travel party", placeholder: "solo / couple / family / friends", example: "family" },
       { key: "destination", label: "Destination city/country", placeholder: "e.g. Italy", example: "Italy" },
       { key: "days", label: "Rental duration (days)", placeholder: "e.g. 5", example: "5" },
+      { key: "budget", label: "Budget", placeholder: "e.g. $60/day or '$400 total'", example: "$60/day" },
     ],
     whenToUse: [
-      "When renting a car and wanting to factor in rebates and card benefits",
-      "When comparing prepay vs. pay-at-counter options",
-      "When deciding whether to buy rental insurance through the company, a portal, or rely on credit card coverage",
+      "When renting a car and you want the lowest all-in cost",
+      "When comparing prepay vs pay-at-counter",
+      "When deciding insurance vs credit card coverage",
     ],
-    promptTemplate: `I need to rent a car in {{destination}} for {{days}} days. Help me find the best price while maximizing rewards.
+    promptTemplate: `I need to rent a car in {{destination}} for {{days}} days. I'm traveling as a {{party}} and my rough budget is {{budget}}. Help me find the best all-in price without getting hit by surprise fees.
 
-1. Channel comparison: List the major car rental booking channels (aggregators, activity marketplaces, direct from rental companies). For each, note: typical price competitiveness, whether rewards platform tracking is available, and any loyalty programs worth joining.
+1. Channel comparison: List booking options (aggregators, direct rental companies, local providers). Explain typical pros/cons and when each wins.
 
-2. Prepay vs. pay-at-counter: Explain the tradeoffs: prepay (often cheaper, locks in rate, but less flexible) vs. pay-at-counter (more flexible, but may not track through rewards platforms the same way). How does each option affect rebates and credit card protections?
+2. Prepay vs pay-at-counter: Explain tradeoffs (price, flexibility, cancellation, deposit holds).
 
-3. Insurance decision tree: Walk me through the insurance options: (a) rental company's CDW/LDW, (b) third-party insurance (bookable through portals with potential rebates), (c) credit card rental insurance. Which cards typically cover this? What are the common exclusions?
+3. Insurance decision tree: Walk me through common insurance choices (CDW/LDW, third-party, credit card coverage). Flag the questions I must answer (coverage limits, exclusions, documentation).
 
-4. Hidden fees to watch for: List fees that inflate the real cost: currency conversion, cross-border charges, fuel policies, young/additional driver fees, airport surcharges, deposit holds on my card.
+4. Hidden fees checklist: List the usual cost inflators (airport surcharges, young/additional driver, fuel policy, cross-border, toll devices, FX/DCC).
 
-5. Comparison worksheet: Create a fillable table: Channel | Base Rate | Insurance Cost | Estimated Fees | Rebate Rate (illustrative: 3–8% on aggregators) | Card Rewards | Net Cost | Notes.
+5. Fillable table: Channel | Base rate | Insurance | Fees | Deposit/hold | Total | Notes.
 
-6. Rewards Capture Checklist: Before booking, (a) check my rewards platform for the rental channel, (b) verify tracking works for prepaid vs. pay-later, (c) confirm my credit card offers rental insurance, (d) activate rewards and screenshot, (e) note the booking reference.
-
-7. Suggest 2 follow-up prompts for comparing specific quotes and understanding insurance coverage.`,
+6. Suggest 2 follow-up prompts after I collect quotes.`,
   },
   {
     id: "airport-transfer-deals",
-    title: "Find the best airport transfer with rewards",
+    title: "Airport transfer chooser (cheapest vs fastest vs easiest)",
     summary:
-      "Compare transfer options with a focus on which booking channels are rewards-eligible and app-vs-web considerations.",
+      "Compare transfer options with a simple table and decision rules based on cost, time, luggage, and arrival time.",
     category: "Transport",
     intent: "comparison",
     purpose:
-      "Extends the rewards mindset to ground transport — an area where many travelers default to whatever's convenient without checking rewards availability.",
-    tags: ["airport", "transfers", "app vs web", "rewards channels"],
+      "Helps travelers pick the right transfer without overpaying—especially when tired, late, or carrying luggage.",
+    tags: ["airport", "transfers", "comparison", "decision"],
     variables: [
+      { key: "party", label: "Travel party", placeholder: "solo / couple / family / friends", example: "couple" },
       { key: "airport", label: "Airport name or code", placeholder: "e.g. NRT (Narita)", example: "NRT (Narita)" },
+      { key: "budget", label: "Budget", placeholder: "e.g. under $25 or 'comfort'", example: "under $25" },
     ],
     whenToUse: [
-      "When arriving at an airport and wanting to compare transfer options including rewards",
-      "When deciding between ride-hailing, pre-booked transfers, and public transit",
-      "When you want to know which transport channels support rewards tracking",
+      "When deciding between taxi/ride-hail, train, bus, or pre-booked transfers",
+      "When traveling with luggage or a group",
+      "When you want a fast choice without regret",
     ],
-    promptTemplate: `I'm arriving at {{airport}} and need to get to the city center. Help me compare transport options, focusing on which channels let me earn rewards.
+    promptTemplate: `I'm arriving at {{airport}} and need to get to the city center. I'm traveling as a {{party}} and my rough budget is {{budget}}. Help me compare options and pick the best one for my situation.
 
-1. Options overview: List the main transfer options: ride-hailing apps, pre-booked private transfer (via activity marketplaces or OTAs), airport shuttle/bus, train/metro, and taxi. For each, estimate typical cost range and travel time.
+1. Options overview: List main options (ride-hailing, taxi, pre-booked transfer, shuttle/bus, train/metro). Include typical cost range and time.
 
-2. Rewards-eligible channels: Be specific about which options can be booked through a rewards platform or app:
-   - Pre-booked transfers via OTAs: typically rewards-eligible
-   - Ride-hailing apps: generally NOT rewards-eligible through portals (but may have in-app rewards)
-   - Public transit: no portal rewards, but cheapest option
-   Note any app-only vs. web booking considerations that affect rewards tracking.
+2. Fillable comparison table: Option | Cost | Time | Comfort | Reliability | Late-night friendliness | Notes.
 
-3. Comparison table: Create a fillable table: Option | Estimated Cost | Travel Time | Comfort Level | Rewards Eligible? | Illustrative Rebates | Flexibility (cancel/change) | Notes.
+3. Decision rules: Give a quick decision tree based on party size, luggage, arrival time, and budget.
 
-4. Decision framework: When should I prioritize cost (public transit), comfort (private transfer), or rewards (pre-booked via rewards-eligible platform)? Give me a quick decision tree based on party size, luggage, and time of arrival.
-
-5. Rewards Capture Checklist: If booking a transfer through a rewards-eligible channel, (a) activate the platform before booking, (b) verify the merchant is listed, (c) note whether to book via app or web for tracking, (d) screenshot activation.
-
-6. Suggest 1–2 follow-up prompts for comparing specific transfer quotes.`,
+4. Suggest 1–2 follow-up prompts after I tell you my arrival time, hotel area, and luggage count.`,
   },
 
   // ── Planning ─────────────────────────────────────────────────────────
   {
     id: "travel-budget-planner",
-    title: "Build a travel budget with rewards assumptions",
+    title: "Build a trip budget you can actually stick to",
     summary:
-      "Create a detailed trip budget with a dedicated rewards assumptions block so rebate projections are transparent and adjustable.",
+      "Create a detailed trip budget with clear assumptions (prices, buffers, and optional upgrades) so you can stay in control.",
     category: "Planning",
     intent: "planning",
     purpose:
-      "Makes rewards a first-class line item in trip budgeting. The explicit 'rewards assumptions' block teaches users to think of rebates as a concrete savings lever they should actively manage.",
-    tags: ["budget", "planning", "rewards assumptions", "worksheet"],
+      "Makes budgeting practical: track the big costs, add realistic buffers, and identify the few levers that save the most money.",
+    tags: ["budget", "planning", "worksheet", "savings"],
     variables: [
+      { key: "party", label: "Travel party", placeholder: "solo / couple / family / friends", example: "couple" },
       { key: "destination", label: "Destination", placeholder: "e.g. Vietnam", example: "Vietnam" },
       { key: "duration", label: "Trip duration (days)", placeholder: "e.g. 10", example: "10" },
       { key: "travelers", label: "Number of travelers", placeholder: "e.g. 2", example: "2" },
       { key: "currency", label: "Budget currency", placeholder: "e.g. USD", example: "USD" },
+      { key: "total_budget", label: "Total budget (optional)", placeholder: "e.g. 2500", example: "2500" },
     ],
     whenToUse: [
-      "When planning a trip and wanting a complete budget template",
-      "When you want to see how rebates and card rewards reduce your effective trip cost",
-      "When comparing destination costs and wanting rewards factored into the comparison",
+      "When planning a trip and you want a complete budget template",
+      "When you want to see where your money will really go",
+      "When you want a clear plan for saving without ruining the trip",
     ],
-    promptTemplate: `Create a detailed travel budget for a {{duration}}-day trip to {{destination}} for {{travelers}} people in {{currency}}.
+    promptTemplate: `Create a detailed travel budget for a {{duration}}-day trip to {{destination}} for {{travelers}} people in {{currency}}. We're traveling as a {{party}} and our rough total budget is {{total_budget}} (if blank, assume mid-range and show options).
 
-1. Budget categories: Estimate costs for: flights, accommodation, food & dining, local transport, activities & tours, shopping, travel insurance, and miscellaneous. Give a realistic range (budget / mid-range / comfortable) for each category.
+1. Budget categories: Estimate ranges for flights, accommodation, food, local transport, activities, shopping, travel insurance, and misc. Give budget / mid-range / comfortable ranges.
 
-2. Rewards assumptions block: Before calculating savings, create a dedicated section where I set my assumptions (I'll fill these in with real numbers from my platforms):
-   - My rewards platform's rate for flights: __% (illustrative default: 1–4%)
-   - My rewards platform's rate for hotels/OTAs: __% (illustrative default: 3–8%)
-   - My rewards platform's rate for activities: __% (illustrative default: 2–5%)
-   - My credit card's travel rewards rate: __%
-   - Any rebate caps per transaction or per month: $__
-   Label all defaults as "illustrative — verify on your platform."
+2. Assumptions block (editable): Create a section where I set assumptions like:
+   - Exchange rate buffer: __%
+   - Price-change buffer for flights/hotels: __%
+   - Baggage/seat add-ons: $__ (or __%)
+   - Transport daily average: $__
+   - “Nice to have” upgrades: $__
 
-3. Budget worksheet: Create a master table with columns: Category | Estimated Cost | Booking Channel | Rebate Rate (from assumptions) | Projected Rebates | Card Rewards | Net Effective Cost. Include a total row.
+3. Master worksheet: Category | Estimated cost | Notes/assumptions | Where to save | Minimum acceptable option.
 
-4. Savings levers: Identify the top 3 categories where optimizing the booking channel or timing could increase my rewards the most.
+4. Biggest savings levers: Identify the top 3 ways to reduce cost without reducing enjoyment.
 
-5. Rewards Capture Checklist: For each booking category, remind me to check my rewards platform, activate tracking, and use the optimal credit card.
+5. Booking checklist: A short checklist to avoid budget blow-ups (fees, cancellations, upgrades, hidden costs).
 
-6. Suggest 2 follow-up prompts for refining the budget as I gather real quotes and rates.`,
+6. Suggest 2 follow-up prompts to refine the budget after I get real quotes.`,
   },
   {
     id: "seasonal-travel-deals",
-    title: "When to book travel for maximum savings",
+    title: "When to book flights and hotels for maximum savings",
     summary:
-      "A monitoring checklist for booking windows, seasonal pricing, and reward platform promotions — without claiming specific rates.",
+      "A monitoring plan for seasonality, booking windows, and major sale periods—focused on real prices, not hype.",
     category: "Planning",
     intent: "strategy",
     purpose:
-      "Teaches users to monitor rewards platforms for boosted rates as a standard part of trip timing, without making false claims about specific promotions.",
-    tags: ["timing", "seasonal", "monitoring", "strategy"],
+      "Helps travelers time bookings intelligently by balancing price trends, flexibility, and predictable sale windows.",
+    tags: ["timing", "seasonality", "price alerts", "strategy"],
     variables: [
+      { key: "party", label: "Travel party", placeholder: "solo / couple / family / friends", example: "solo" },
       { key: "destination", label: "Destination", placeholder: "e.g. Japan", example: "Japan" },
+      { key: "budget", label: "Budget", placeholder: "e.g. 'tight' / 'mid-range' / 'comfort'", example: "mid-range" },
     ],
     whenToUse: [
-      "When you have flexibility on travel dates and want to optimize timing for both price and rewards",
-      "When planning ahead and wanting to know when rewards platforms tend to run promotions",
-      "When creating a trip monitoring plan months in advance",
+      "When your travel dates are flexible and you want the best value",
+      "When planning months ahead and you want a monitoring plan",
+      "When deciding whether to wait for a sale or book now",
     ],
-    promptTemplate: `I want to travel to {{destination}} and have flexible dates. Help me build a monitoring plan to book at the best time for both price and rewards.
+    promptTemplate: `I want to travel to {{destination}} and have flexible dates. I'm traveling as a {{party}} and my rough budget is {{budget}}. Help me build a monitoring plan to book at the best time for price and value.
 
-1. Destination seasonality: What are the peak, shoulder, and low seasons for {{destination}}? When are flights and hotels cheapest? When is the weather best? Help me identify the sweet spot of good weather + lower prices.
+1. Destination seasonality: Identify peak/shoulder/low seasons. When are flights/hotels cheapest, and what’s the weather tradeoff?
 
-2. General booking timing: What are the well-known patterns for booking windows? (e.g., how far in advance for cheapest flights, mid-week booking advantages, etc.)
+2. General booking windows: Share common patterns for flights vs hotels (how far out to watch, when last-minute works, when it doesn’t).
 
-3. Rewards platform promotion calendar — things to watch for: Rewards platforms often run boosted-rate promotions during major shopping events. List the key dates to monitor throughout the year (e.g., platform anniversary sales, mid-year sales, 9.9/10.10/11.11, Black Friday/Cyber Monday, year-end sales). DO NOT claim specific rates — instead, note these as "periods when boosted rebate rates have historically been offered; check your platform closer to the date."
+3. Major sale periods to watch: List common promo windows (e.g., mid-year, 9.9/10.10/11.11, Black Friday/Cyber Monday, year-end) as “times when many travel sites run discounts”—no promises.
 
-4. Monitoring checklist: Create a practical checklist I can follow in the months before my trip:
-   - Set price alerts on flights (metasearch tools, price alert apps)
-   - Set calendar reminders for major rewards promotion periods
-   - Join email/push notifications from my rewards platform for travel savings
-   - Monitor hotel prices weekly starting X months out
-   - Check credit card portal for rotating travel bonuses
+4. Monitoring checklist: Price alerts, a simple tracking spreadsheet, and a weekly routine (what to check and how often).
 
-5. Decision framework: How do I balance "cheapest price" vs. "highest rebate rate" when they don't align? Give me a simple way to calculate the net best time.
+5. Decision framework: How to decide “book now” vs “wait,” including a breakeven calculation (how much price increase would wipe out a discount).
 
-6. Suggest 2 follow-up prompts for when I'm closer to booking and want to finalize timing.`,
+6. Suggest 2 follow-up prompts for when I’m close to booking.`,
   },
   {
     id: "travel-rewards-checklist",
-    title: "Prebooking rewards SOP",
+    title: "Pre-booking savings SOP",
     summary:
-      "A comprehensive standard operating procedure for never missing rewards, covering tracking hygiene, coupon conflicts, and claims.",
+      "A printable SOP for booking travel smarter: compare properly, avoid fee traps, and keep receipts and policies organized.",
     category: "Planning",
     intent: "checklist",
     purpose:
-      "Creates a reusable, printable workflow that normalizes rewards activation as an automatic step in any travel booking — the core behavior this site aims to instill.",
-    tags: ["checklist", "SOP", "tracking", "claims"],
-    variables: [],
-    whenToUse: [
-      "Before any travel booking to ensure you capture all available rewards",
-      "When setting up your reward-earning workflow for the first time",
-      "When you've had rewards fail to track and want a reliable process going forward",
+      "Creates a repeatable workflow that reduces mistakes and saves money through better comparisons, cleaner checkout, and better documentation.",
+    tags: ["checklist", "SOP", "booking", "savings"],
+    variables: [
+      { key: "party", label: "Travel party", placeholder: "solo / couple / family / friends", example: "family" },
+      { key: "budget", label: "Budget", placeholder: "e.g. $3000 total or 'mid-range'", example: "$3000 total" },
     ],
-    promptTemplate: `Create a comprehensive, printable Standard Operating Procedure (SOP) I should follow before and after every travel booking to ensure I never miss rewards.
+    whenToUse: [
+      "Before any travel booking to avoid expensive mistakes",
+      "When you want a consistent workflow you can reuse every trip",
+      "When you’re coordinating bookings for multiple people",
+    ],
+    promptTemplate: `Create a comprehensive, printable Standard Operating Procedure (SOP) I should follow before and after every travel booking to save money and reduce problems. Tailor it for a {{party}} trip with a rough budget of {{budget}}.
 
 BEFORE BOOKING:
-1. Research phase: Compare prices across at least 3 platforms. Check if each platform is available on my rewards platform. Note the rebate rate and any caps for each.
-2. Promo code audit: Search for valid promo codes, but check whether using a code voids rewards (some platforms have exclusion rules). Document the decision: code OR rewards, whichever yields more.
-3. Credit card selection: For this booking category (flights, hotels, transport, etc.), which of my cards offers the best rewards rate? Check for any card-linked offers or rotating bonuses.
-4. Loyalty enrollment: Am I a member of the relevant loyalty program? If not, sign up BEFORE booking (don't miss the points).
-5. Rewards activation: Open my rewards platform. Navigate to the specific merchant. Click through to the merchant's site. Verify the activation (look for a confirmation banner or popup).
-6. Tracking hygiene: Clear cookies or use a clean browser session. Disable ad blockers temporarily. Confirm whether to book via web or app (some platforms only track one). Do NOT open the merchant in a separate tab — use only the platform's redirect link.
-7. Screenshot everything: Screenshot the rewards activation page, the rate shown, and the timestamp.
+1. Compare properly: Compare at least 3 sources and ensure you’re comparing the same thing (same dates, baggage, room type, cancellation terms).
+2. Fee audit: Check taxes/fees, resort/city fees, payment/FX fees, baggage/seat add-ons, and any mandatory extras.
+3. Promo discipline: If using a promo code, confirm eligibility, minimum spend, excluded dates/categories, and whether it changes cancellation terms.
+4. Flexibility check: Decide upfront how much flexibility you need (refundable vs non-refundable) and what you’re willing to risk.
+5. Documentation: Save screenshots/receipts and the cancellation policy page for anything expensive or non-refundable.
 
 DURING BOOKING:
-8. Complete the booking in one session. Avoid navigating away or opening new tabs.
-9. Note the order ID, confirmation number, and total amount paid.
+6. Clean checkout: Re-check currency, pre-ticked add-ons, traveler names, passport requirements, and contact details.
+7. One-session rule: Avoid changing devices/tabs mid-checkout; confirm you get a final confirmation page.
 
 AFTER BOOKING:
-10. Verification: Check my rewards platform within 24–48 hours to confirm the transaction appears as "pending."
-11. If NOT tracked: Wait 7 days, then file a missing rewards claim. Attach: screenshots of activation, order confirmation, payment proof.
-12. Record-keeping: Log the booking in a simple tracker (spreadsheet or app): Date, Merchant, Amount, Rewards Platform, Rate, Status (pending/confirmed/claimed).
-13. Post-trip: Verify rewards moved from "pending" to "confirmed" after the stay/travel is complete. Note the typical confirmation timeline (30–90 days for travel).
+8. Confirmation audit: Confirm email received, booking reference, total charged, and policy deadlines.
+9. Calendar reminders: Add reminders for free-cancellation deadlines, check-in windows, and any required pre-arrival steps.
+10. Record-keeping: Keep a simple tracker: Date | Provider | Amount | Policy type | Deadline | Notes.
 
-Format this as a printable checklist with checkboxes. Make it concise enough to fit on one page.`,
+Format this as a one-page checklist with checkboxes.`,
   },
 
   // ── Cards & Miles ────────────────────────────────────────────────────
   {
     id: "travel-card-comparison",
-    title: "Best travel credit cards for rewards stacking",
+    title: "Best travel cards for fees, perks, and protections",
     summary:
-      "Compare travel cards that pair with rewards platforms, with explicit inputs for your country, spend, and travel patterns.",
+      "Compare travel cards by FX fees, travel insurance, lounge access, and how you book—so your payments help you travel smarter.",
     category: "Cards & Miles",
     intent: "comparison",
     purpose:
-      "Positions credit cards as a complementary layer to rewards platforms — reinforcing the stacking mindset. Forces explicit assumptions to avoid hallucinated card details.",
-    tags: ["credit cards", "rewards stacking", "comparison"],
+      "Shifts the focus from “earning” to smart travel payments: lower fees, better protections, and perks that actually reduce trip friction and cost.",
+    tags: ["credit cards", "fees", "protections", "comparison"],
     variables: [
       { key: "country", label: "Country of residence", placeholder: "e.g. Singapore", example: "Singapore" },
       { key: "frequency", label: "Trips per year", placeholder: "e.g. 4", example: "4" },
     ],
     whenToUse: [
-      "When choosing a new travel credit card and wanting one that complements rewards platforms",
-      "When you want to understand how card rewards stack with portal rebates",
-      "When comparing annual fees against projected travel rewards",
+      "When choosing a travel card based on fees and protections",
+      "When comparing annual fees vs perks you’ll actually use",
+      "When you travel internationally and care about FX costs",
     ],
-    promptTemplate: `I live in {{country}} and travel about {{frequency}} times per year. Help me find the best travel credit card that stacks well with rewards platforms.
+    promptTemplate: `I live in {{country}} and travel about {{frequency}} times per year. Help me choose a travel credit card that helps me save money and reduce travel stress.
 
-IMPORTANT: Credit card products change frequently. Use the following structure but note that I should verify all details directly with the card issuers. Present any specific numbers as "approximate / as of last knowledge" and recommend I confirm before applying.
+IMPORTANT: Credit card products change frequently. Use a structured comparison, but remind me to verify all details with issuers before applying.
 
-1. Inputs I should define (fill in before evaluating):
+1. Inputs I should define:
    - Annual travel spend: $__
-   - Main booking channels: (OTAs, direct, mix)
-   - Priority: miles accumulation vs. rebates vs. travel perks (lounges, insurance)
-   - Existing loyalty programs I'm in: __
+   - Typical bookings: flights / hotels / rides / tours (which are biggest?)
+   - Countries/currencies I spend in most: __
+   - Priorities: low FX fees, travel insurance, lounge access, hotel perks, customer support
 
-2. Card comparison framework: For up to 5 recommended cards, create a table: Card Name | Annual Fee | Travel Rewards Rate | Lounge Access | Travel Insurance | Portal Stacking (does the card's rewards stack with platform rebates?) | Best For.
+2. Comparison framework (up to 5 cards): Card | Annual fee | FX fees | Travel insurance highlights | Lounge access | Key perks | Best for.
 
-3. Stacking explanation: For each card, explain how the rewards interact with rewards platforms. Example scenario: "If I book a $500 hotel through an OTA via my rewards platform, and pay with this card, what layers of rewards do I earn?" Walk through the math with illustrative numbers.
+3. Real-world scenarios: For each card, explain how it helps in scenarios like cancellations, delays, lost baggage, rental car damage, or disputes.
 
-4. Annual value calculator template: Create a worksheet: Spending Category | Annual Spend | Card Rewards Rate | Rewards Platform Rate | Total Rewards Value. Help me estimate whether a card's annual fee is justified by my travel patterns.
+4. Value calculator template: A worksheet to estimate whether the annual fee is worth it based on perks you’ll actually use.
 
-5. Suggest 2 follow-up prompts for doing a deeper comparison on specific cards or optimizing my card-portal strategy.`,
+5. Suggest 2 follow-up prompts for narrowing to 2 final choices.`,
   },
   {
     id: "miles-vs-cashback",
-    title: "Miles vs. rebates: which strategy saves more?",
+    title: "Points vs cash savings: which fits your travel style?",
     summary:
-      "A math-driven comparison with explicit inputs for spend, redemption assumptions, and travel patterns.",
+      "A math-driven comparison that helps you decide whether points/miles or simple discounts and statement credits are better for you.",
     category: "Cards & Miles",
     intent: "analysis",
     purpose:
-      "Helps users make an informed choice between miles and rebates strategies with transparent assumptions. Either path reinforces the rewards-aware booking behavior.",
-    tags: ["miles", "rebates", "analysis", "strategy"],
+      "Keeps it practical: compare strategies with clear assumptions so you choose the one that saves you more, with less effort and fewer surprises.",
+    tags: ["points", "cash savings", "analysis", "strategy"],
     variables: [
       { key: "monthly_spend", label: "Monthly travel spend (USD)", placeholder: "e.g. 500", example: "500" },
     ],
     whenToUse: [
-      "When deciding whether to focus on collecting airline miles or earning rebates",
-      "When you want to see the math behind each strategy for your specific spending level",
-      "When evaluating whether to switch from a miles card to a rebates card or vice versa",
+      "When deciding between a points-focused card vs a cash-savings approach",
+      "When you want clear math based on your spend and habits",
+      "When you don’t want a complicated strategy that’s hard to redeem",
     ],
-    promptTemplate: `I spend roughly \${{monthly_spend}} per month on travel bookings. Help me compare a miles strategy vs. a rebates strategy with transparent math.
+    promptTemplate: `I spend roughly \${{monthly_spend}} per month on travel bookings. Help me compare a points/miles strategy vs a simple cash-savings strategy with transparent math.
 
-1. Define my assumptions (I'll fill in real values):
-   - Miles earn rate on my card: __ miles per $ (illustrative default: 1.2–2 miles per $)
-   - Miles redemption value: __ cents per mile (illustrative: 1–2 cents for economy, 3–5 cents for business class)
-   - Rewards platform rate for travel bookings: __% (illustrative: 2–6%)
-   - Rebates card rewards rate: __% (illustrative: 1–3%)
-   - How I typically redeem miles: economy / business / transfer to partners
+1. Define my assumptions (I’ll fill these in):
+   - Points earn rate: __ points per $
+   - Realistic redemption value: __ cents per point (conservative and optimistic)
+   - Likelihood I can redeem well: low / medium / high
+   - Cash-savings option: __% average discount or statement credit equivalent
+   - Annual fees: $__
 
-2. Strategy A — Miles-focused: Calculate annual miles earned, estimated redemption value based on my assumptions, and factor in card annual fee and perks. Note the breakeven point.
+2. Strategy A — Points/miles: Estimate annual points, realistic value, and effort/constraints (availability, blackout, surcharges).
 
-3. Strategy B — Rebates-focused: Calculate annual rebates from platform + card, net of any annual fee. Show the guaranteed dollar value.
+3. Strategy B — Cash savings: Estimate guaranteed annual value (discounts/credits) and simplicity.
 
-4. Head-to-head comparison table: Strategy | Annual Earn | Redemption Value (conservative) | Redemption Value (optimistic) | Card Fee | Net Annual Value | Certainty Level.
+4. Head-to-head table: Strategy | Annual value (conservative) | Annual value (optimistic) | Fees | Complexity | Best for.
 
-5. Key insight: Highlight that rebates value is guaranteed and immediate, while miles value depends on redemption skill and availability. When does the miles strategy clearly win (high redemption value travelers), and when do rebates win (casual travelers, value certainty)?
+5. Recommendation: Based on my inputs, recommend the simpler strategy unless the other clearly wins.
 
-6. Suggest 2 follow-up prompts for calculating my specific numbers and optimizing whichever strategy I choose.`,
+6. Suggest 2 follow-up prompts for optimizing whichever strategy I pick.`,
   },
   {
     id: "lounge-access-deals",
     title: "Get airport lounge access for less",
     summary:
-      "Compare lounge access methods including cards, passes, and rewards opportunities on pass purchases.",
+      "Compare lounge access methods—cards, memberships, day passes, and pay-per-visit—to find the cheapest option that fits your travel frequency.",
     category: "Cards & Miles",
     intent: "comparison",
     purpose:
-      "Extends the rewards lens to a premium travel perk — showing that even lounge access has a rewards angle when purchasing passes through platforms.",
-    tags: ["lounges", "airport", "perks", "passes"],
+      "Helps travelers avoid overpaying for lounge access by choosing the access method with the best breakeven point.",
+    tags: ["lounges", "airport", "passes", "comparison"],
     variables: [
+      { key: "party", label: "Travel party", placeholder: "solo / couple / family / friends", example: "couple" },
       { key: "airport", label: "Airport name or code", placeholder: "e.g. SIN (Changi)", example: "SIN (Changi)" },
+      { key: "budget", label: "Budget", placeholder: "e.g. <$40/visit or 'premium ok'", example: "<$40/visit" },
     ],
     whenToUse: [
-      "When you want lounge access but don't have a premium card",
-      "When comparing the cost of different lounge access methods",
-      "When wondering if you can earn rewards on lounge pass purchases",
+      "When you want lounge access without paying for a premium card blindly",
+      "When comparing memberships vs day passes",
+      "When you want a breakeven calculation",
     ],
-    promptTemplate: `What are the most cost-effective ways to get airport lounge access at {{airport}}? Help me compare all options, including any rewards opportunities.
+    promptTemplate: `What are the most cost-effective ways to get airport lounge access at {{airport}}? I'm traveling as a {{party}} and my rough lounge budget is {{budget}}. Help me compare all options and choose the cheapest one that fits my travel habits.
 
-1. My inputs (I'll fill these in):
+1. My inputs:
    - Credit cards I hold: __
    - Frequent flyer status: __
-   - How often I fly per year: __
+   - Flights per year: __
    - Typical cabin class: economy / premium economy / business
 
-2. Access methods ranked by cost-effectiveness: Create a comparison for each method:
-   - Credit card complimentary access (which cards at my airport include lounge access?)
-   - Lounge membership programs (annual cost, is it purchasable through a rewards platform?)
-   - Airline lounge day passes (typical cost, any rewards angle if booked online?)
-   - Airline status/elite tier access
+2. Access methods to compare:
+   - Credit card lounge benefits
+   - Lounge membership programs
+   - Airline lounge day passes
    - Pay-per-visit at the door
    - Lounge aggregator apps
 
-3. Comparison table: Method | Annual/Per-Visit Cost | Lounges Available at {{airport}} | Rewards Opportunity? | Guest Policy | Notes.
+3. Comparison table: Method | Cost | Lounges at {{airport}} | Guest policy | Convenience | Notes.
 
-4. Rewards on lounge passes: Can I earn rewards when purchasing lounge memberships through my rewards platform? If a platform carries the merchant, note it as a potential saving (verify availability on your platform).
+4. Breakeven: Show me how to decide when a membership or premium card makes sense vs paying per visit.
 
-5. Decision framework: Based on how often I fly, what's the breakeven point for an annual membership vs. paying per visit? At what frequency does a premium credit card with lounge access justify its fee?
-
-6. Suggest 1–2 follow-up prompts for evaluating specific lounge options at my most-visited airports.`,
+5. Suggest 1–2 follow-up prompts for my specific cards and airports.`,
   },
 
-  // ── NEW: Upper-funnel behavior-shaping prompts ──────────────────────
-  {
-    id: "cashback-merchant-discovery",
-    title: "Find rewards merchants for your trip",
-    summary:
-      "Before booking anything, search your rewards platform for every travel merchant you might need.",
-    category: "Planning",
-    intent: "discovery",
-    purpose:
-      "Directly normalizes the behavior of opening a rewards platform and searching for merchants before booking — the core upper-funnel habit this site aims to build.",
-    tags: ["merchant discovery", "rewards", "pre-booking", "planning"],
-    variables: [
-      { key: "destination", label: "Destination", placeholder: "e.g. Thailand", example: "Thailand" },
-      { key: "duration", label: "Trip duration (days)", placeholder: "e.g. 7", example: "7" },
-    ],
-    whenToUse: [
-      "At the very start of trip planning, before you've booked anything",
-      "When you want a checklist of what to search on your rewards platform",
-      "When you're not sure which travel merchants your rewards platform covers",
-    ],
-    promptTemplate: `I'm planning a {{duration}}-day trip to {{destination}}. Before I book anything, help me create a list of merchant categories and search terms I should look for inside my rewards platform.
-
-1. Merchant search list by trip component: For each component of my trip, suggest the categories and search terms I should look up on my rewards platform:
-   - Flights: airlines, OTAs
-   - Hotels: OTAs, hotel chain websites
-   - Activities & tours: activity marketplaces, local tour operators
-   - Car rental: aggregators, rental companies
-   - Airport transfers: pre-booked transfer providers
-   - Travel insurance: insurance providers
-   - Shopping: department stores, duty-free, outlet malls at destination
-
-2. Search strategy: How should I search — by merchant name, by category, or both? Remind me to check for "travel" category pages which often aggregate all travel merchants.
-
-3. Rate comparison worksheet: Create a quick table I can fill in as I search: Merchant/Category | Available on My Platform? | Current Rate | Cap | Notes.
-
-4. Bookmark the winners: Suggest I bookmark or favorite the merchants I'll actually use, so I can quickly activate them when it's time to book.
-
-5. Suggest 2 follow-up prompts for comparing the rates I've found and deciding my booking order.`,
-  },
+  // ── Smart savings prompts ───────────────────────────────────────────
   {
     id: "promo-vs-cashback-decision",
-    title: "Promo code or rebates: which wins?",
+    title: "Promo code vs alternative offer: which saves more?",
     summary:
-      "A decision framework for when you have both a promo code and a rebates rate — and they might conflict.",
+      "A simple decision framework for comparing a promo code against another offer (member rate, bundle discount, or credit).",
     category: "Planning",
     intent: "decision",
     purpose:
-      "Addresses one of the most common rewards frustrations (promo codes voiding rebates) and builds user confidence in navigating these tradeoffs.",
-    tags: ["promo codes", "rebates", "conflicts", "decision"],
+      "Helps travelers pick the real best deal by comparing like-for-like and checking the fine print that changes total cost.",
+    tags: ["promo codes", "discounts", "fine print", "decision"],
     variables: [
-      { key: "promo_value", label: "Promo code value", placeholder: "e.g. 15% off or $20 off", example: "15% off" },
-      { key: "cashback_rate", label: "Rebates rate offered", placeholder: "e.g. 5%", example: "5%" },
+      { key: "promo_value", label: "Promo value", placeholder: "e.g. 15% off or $20 off", example: "15% off" },
+      { key: "alt_offer", label: "Alternative offer", placeholder: "e.g. member rate -10% or $30 credit", example: "member rate -10%" },
       { key: "order_value", label: "Estimated order value", placeholder: "e.g. $300", example: "$300" },
     ],
     whenToUse: [
-      "When you have a promo code and a rebates offer and aren't sure which to use",
-      "When you've had rebates voided by a promo code before and want to avoid it",
-      "When the rewards platform's terms mention promo code exclusions",
+      "When you have a promo code and another offer and aren’t sure which is better",
+      "When terms and conditions might change what’s included or refundable",
+      "When you want a quick way to compare apples-to-apples",
     ],
-    promptTemplate: `I have a promo code worth {{promo_value}} and my rewards platform is offering {{cashback_rate}} on a booking worth approximately {{order_value}}. Help me decide which to use.
+    promptTemplate: `I have a promo worth {{promo_value}} and an alternative offer: {{alt_offer}} on a booking worth about {{order_value}}. Help me decide which saves more.
 
-1. Basic math comparison: Calculate the dollar value of the promo code vs. the rebates at this order value. Which yields more savings in raw terms?
+1. Basic math: Convert both offers into dollar value (including whether they apply before/after taxes and fees).
 
-2. Can they stack? Explain the common scenarios:
-   - Some platforms allow promo codes AND rebates to coexist
-   - Some promo codes are "affiliate exclusive" and will void rewards tracking
-   - Some platforms have specific promo codes distributed through rewards platforms that are designed to stack
-   What should I look for in the terms and conditions to figure out if mine can stack?
+2. Fine print checklist: What to verify for each offer (eligible dates, minimum spend, excluded room types/fare classes, cancellation/refund changes, caps, “new users only” rules).
 
-3. Hidden considerations:
-   - Rebates cap: Is there a maximum rebates amount that would limit my earnings?
-   - Promo code conditions: Minimum spend, specific products/categories only, first-time customer only?
-   - Rewards tracking reliability: Promo code entry sometimes breaks the tracking pixel. What's the risk?
+3. Total cost comparison: Show a mini worksheet:
+Option | Base price | Taxes/fees | Discount/credit | Final price | Policy changes | Notes.
 
-4. Decision tree: Give me a step-by-step decision flow:
-   Can they stack? -> Yes: Use both -> No: Which has higher dollar value? -> Factor in rewards certainty (confirmed rate vs. "may not track") -> Choose.
+4. Decision tree: Give a short flow to pick the winner, prioritizing lowest final price AND acceptable flexibility.
 
-5. Pro tip: If the promo wins but I lose rebates, remind me to still check if there's a lower rebates rate on a different platform that IS compatible, or a platform-exclusive promo that stacks.
-
-6. Suggest 1–2 follow-up prompts for verifying promo code compatibility with my specific platform.`,
-  },
-  {
-    id: "cashback-tracking-troubleshoot",
-    title: "My rewards didn't track — what to do",
-    summary:
-      "A step-by-step troubleshooting and claims guide when rewards fail to appear after a booking.",
-    category: "Planning",
-    intent: "troubleshooting",
-    purpose:
-      "Builds user trust in the rewards ecosystem by providing a clear recovery path. Users who successfully file claims become more committed rewards users.",
-    tags: ["tracking", "claims", "troubleshooting", "missing rewards"],
-    variables: [],
-    whenToUse: [
-      "When your rewards didn't appear as pending after a booking",
-      "When you want a reusable claims process for any rewards platform",
-      "When you want to prevent tracking failures on future bookings",
-    ],
-    promptTemplate: `My rewards didn't track after a travel booking. Give me a complete troubleshooting guide and claims process.
-
-1. Common reasons rewards fail to track:
-   - Used a promo code that conflicts with rewards terms
-   - Navigated away from the merchant or opened a new tab after activation
-   - Ad blocker or cookie blocker interfered with the tracking pixel
-   - Booked via app when the platform only tracks web (or vice versa)
-   - Transaction amount fell below minimum threshold
-   - Booked a product/category excluded from rewards (e.g., taxes, fees, add-ons)
-
-2. Immediate steps (within 7 days):
-   - Check if the transaction appears as "pending" — it may just be delayed (some travel merchants take 48–72 hours)
-   - Check the exact terms for the merchant — was there a cap, exclusion, or minimum?
-   - Gather evidence: screenshots of rewards activation, order confirmation, payment confirmation, email receipts
-
-3. Filing a claim (after 7–14 days):
-   - Where to find the claims/missing rewards form on most platforms
-   - What information to include: date, merchant, order ID, amount, screenshots
-   - Expected timeline for resolution (typically 30–90 days for travel)
-
-4. Escalation: If the claim is denied:
-   - Request a specific reason for denial
-   - If the denial seems wrong, what are the escalation options? (re-submit with evidence, contact support, social media)
-
-5. Prevention checklist for next time: Create a quick 5-point checklist to prevent tracking failures on future bookings: (a) clean browser, (b) activate + screenshot, (c) single session, (d) check promo compatibility, (e) verify pending within 48 hours.
-
-6. Suggest 1–2 follow-up prompts for understanding my specific platform's claims process and prevention best practices.`,
+5. Suggest 1–2 follow-up prompts once I paste the real terms.`,
   },
   {
     id: "split-booking-optimizer",
-    title: "Should I split bookings to maximize rewards?",
+    title: "Should I split bookings to save money?",
     summary:
-      "Decide when splitting a trip across multiple merchants earns more total rewards vs. booking everything in one place.",
+      "Decide when splitting flights, hotels, and activities across providers lowers total cost vs booking everything in one place.",
     category: "Packages",
     intent: "optimization",
     purpose:
-      "Introduces the advanced rewards strategy of splitting bookings — which deepens engagement with rewards platforms by encouraging users to check rates per merchant.",
-    tags: ["split booking", "optimization", "multi-merchant", "rewards"],
+      "Helps travelers weigh real savings against added complexity, so they don’t create a fragile itinerary to save a tiny amount.",
+    tags: ["split booking", "optimization", "convenience", "total cost"],
     variables: [
+      { key: "party", label: "Travel party", placeholder: "solo / couple / family / friends", example: "friends" },
       { key: "destination", label: "Destination", placeholder: "e.g. South Korea", example: "South Korea" },
       { key: "duration", label: "Trip duration (days)", placeholder: "e.g. 7", example: "7" },
+      { key: "budget", label: "Total budget", placeholder: "e.g. $2000 total or 'tight'", example: "$2000 total" },
     ],
     whenToUse: [
-      "When you're considering booking everything through one OTA vs. splitting across multiple platforms",
-      "When different rebate rates across merchants make you wonder if splitting would earn more",
-      "When convenience vs. rewards is the tradeoff you're weighing",
+      "When you’re tempted to book everything through one site for convenience",
+      "When different providers show different prices for each component",
+      "When you want rules for when splitting is worth it",
     ],
-    promptTemplate: `I'm planning a {{duration}}-day trip to {{destination}}. Help me decide whether to book everything through one platform or split across multiple merchants to maximize total rewards.
+    promptTemplate: `I'm planning a {{duration}}-day trip to {{destination}}. We're traveling as a {{party}} with a rough budget of {{budget}}. Help me decide whether to book everything in one place or split across multiple providers to save money without creating chaos.
 
-1. The split booking concept: Explain how booking flights, hotels, activities, and transfers through different merchants — each chosen for the best rebate rate — can yield more total rewards than booking everything in one place. But also cover the downsides: more complexity, multiple cancellation policies, harder to manage changes.
+1. Explain the tradeoff: What you gain (potential savings, better fit per component) vs what you lose (more policies, more support channels, harder changes).
 
-2. Component-by-component analysis: For each trip component, help me identify where the rebate rate is likely to vary most:
-   - Flights: airline direct vs. OTA (rates may differ significantly)
-   - Hotels: OTA A vs. OTA B vs. direct (rates often vary by 2–5%)
-   - Activities: activity marketplaces vs. local operators
-   - Transfers: pre-booked vs. on-demand
+2. Component-by-component checklist: For flights, hotels, activities, and transfers—where do price differences usually matter most, and where should I prioritize flexibility?
 
-3. Split vs. single worksheet: Create a comparison table:
-   Component | Single Platform (name it) | Rebate Rate | vs. Best Split Option | Rebate Rate | Savings Difference.
+3. Comparison table: Component | One-place option | Price | Split option | Price | Savings | Complexity cost.
 
-4. Convenience cost: Help me quantify the hassle factor. If splitting saves an extra $X in rebates but means managing 4 separate bookings with 4 cancellation policies, what's my personal threshold?
+4. Decision rules: Give thresholds like:
+   - Split when savings is > $__ or > __% AND cancellation risk is low
+   - Don’t split when the itinerary is fragile or support matters more
 
-5. Decision rules:
-   - Split when: the rebate rate difference is > X% between platforms AND the booking total for that component is > $Y
-   - Don't split when: the difference is marginal, the booking is low-value, or flexibility/cancellation matters more
-
-6. Suggest 2 follow-up prompts for comparing specific merchants and calculating my split vs. single total.`,
+5. Suggest 2 follow-up prompts once I have real quotes.`,
   },
   {
     id: "boosted-rate-timing",
-    title: "Plan bookings around boosted reward windows",
+    title: "Plan bookings around sales periods (without overpaying)",
     summary:
-      "Build a strategy for timing travel purchases around rewards platform promotions without overpaying on base price.",
+      "A strategy for timing purchases around predictable travel sale windows while tracking real prices and avoiding hype.",
     category: "Planning",
     intent: "strategy",
     purpose:
-      "Normalizes the habit of monitoring rewards platforms for promotional windows — and teaches users to balance timing of rewards boosts against price changes.",
-    tags: ["boosted rates", "timing", "promotions", "patience"],
+      "Helps travelers avoid false savings by pairing sale timing with real price tracking and a clear breakeven calculation.",
+    tags: ["sales", "timing", "promotions", "price tracking"],
     variables: [
+      { key: "party", label: "Travel party", placeholder: "solo / couple / family / friends", example: "couple" },
       { key: "trip_month", label: "Planned travel month", placeholder: "e.g. December", example: "December" },
+      { key: "budget", label: "Budget", placeholder: "e.g. 'tight' / 'mid-range' / 'comfort'", example: "mid-range" },
     ],
     whenToUse: [
-      "When your trip is months away and you want to time bookings for best rewards",
-      "When you know rewards platforms run promotions but aren't sure how to plan around them",
-      "When you want to avoid rushing a booking just because a promotion is live",
+      "When your trip is months away and you can wait for discounts",
+      "When you want to avoid rushing because a sale is live",
+      "When you want a clear booking timeline by component",
     ],
-    promptTemplate: `I'm planning to travel in {{trip_month}}. Help me build a strategy for timing my bookings around boosted reward windows without overpaying on base price.
+    promptTemplate: `I'm planning to travel in {{trip_month}}. I'm traveling as a {{party}} and my rough budget is {{budget}}. Help me build a strategy for timing my bookings around common sales periods without overpaying on base price.
 
-1. Common promotion windows: List the major promotional periods when rewards platforms have historically offered boosted rates (e.g., platform anniversary sales, mid-year sales, 9.9, 10.10, 11.11, Black Friday, year-end). Note: I should NOT assume specific rates — these are periods to monitor, not guarantees.
+1. Common sale windows: List major periods when travel sites often run promotions (mid-year, 9.9/10.10/11.11, Black Friday, year-end). Note these are “watch windows,” not guarantees.
 
-2. Price vs. rebates timing conflict: Sometimes the cheapest base price and the highest rebate rate don't align. Walk me through how to think about this:
-   - If flights are cheapest 3 months out but rebates might boost during 11.11, should I wait?
-   - How to calculate the breakeven: does a 2% rebate boost justify waiting if prices might rise by 5%?
+2. Price vs sale conflict: Walk me through how to decide whether to wait. Include a breakeven calculation: how much price increase would erase a discount?
 
-3. Booking priority order: For my trip in {{trip_month}}, suggest an ideal booking timeline:
-   - When to book flights (least flexible on timing, book for price)
-   - When to book hotels (more flexible, can wait for promotions)
-   - When to book activities (most flexible, often has the best promotional boosts)
-   - When to buy travel insurance (usually last, check for platform availability)
+3. Booking priority order: Suggest a booking timeline for flights vs hotels vs activities vs insurance, based on price volatility and flexibility.
 
-4. Monitoring plan: Create a simple calendar/checklist:
-   - Which platforms to check weekly for rate changes
-   - Set alerts for upcoming promotional dates
-   - Track historical base prices so I know if a "savings" is actually a saving
+4. Monitoring plan: A simple checklist for price alerts, weekly checks, and tracking a “normal” price.
 
-5. Anti-rush rule: Remind me that a boosted rebate rate on an overpriced booking is still a bad deal. Always compare the net effective cost (price minus rebates) against the non-promotional price.
+5. Anti-rush rule: Remind me to compare final prices (after fees) and not chase a discount on an overpriced listing.
 
-6. Suggest 2 follow-up prompts for evaluating a specific promotion I've spotted and deciding whether to act.`,
+6. Suggest 2 follow-up prompts for evaluating a specific sale I’ve found.`,
   },
   {
     id: "rewards-stacking-audit",
-    title: "Audit your trip for missed reward opportunities",
+    title: "Audit your trip for missed savings opportunities",
     summary:
-      "Review an already-planned trip to find bookings where you could still add rebates, loyalty points, or card rewards.",
+      "Review an already-planned trip to find quick wins: cheaper rebooking, better policies, lower fees, and smarter add-ons.",
     category: "Planning",
     intent: "audit",
     purpose:
-      "Catches users who have already started booking without a rewards strategy — bringing them into the rewards mindset even mid-planning. A powerful rescue prompt.",
-    tags: ["audit", "missed rewards", "optimization", "rescue"],
+      "Catches trips that are already in progress and helps travelers reduce cost and risk without restarting the whole plan.",
+    tags: ["audit", "optimization", "quick wins", "rebooking"],
     variables: [
+      { key: "party", label: "Travel party", placeholder: "solo / couple / family / friends", example: "family" },
       { key: "destination", label: "Destination", placeholder: "e.g. Europe", example: "Europe" },
+      { key: "budget", label: "Budget", placeholder: "e.g. $4000 total or 'mid-range'", example: "$4000 total" },
     ],
     whenToUse: [
-      "When you've already booked part of your trip and wonder if you missed reward opportunities",
-      "When reviewing existing bookings to see if anything can be rebooked for better rewards",
-      "When a friend tells you about rewards platforms and you want to apply it to your upcoming trip",
+      "When you’ve already booked part of your trip and want to see what you can still improve",
+      "When you want to check if rebooking is worth the hassle",
+      "When you want a short list of the highest-impact fixes",
     ],
-    promptTemplate: `I have a trip to {{destination}} that's partially booked. Help me audit my existing bookings for missed reward opportunities and identify what I can still optimize.
+    promptTemplate: `I have a trip to {{destination}} that’s partially booked. We're traveling as a {{party}} with a rough budget of {{budget}}. Help me audit my bookings for missed savings opportunities and low-risk optimizations.
 
-1. Booking audit checklist — for each existing booking, ask me:
-   - Did I go through a rewards platform when booking? (If no: can I cancel and rebook?)
-   - Did I use the optimal credit card for this category?
-   - Am I enrolled in the relevant loyalty program?
-   - Did I miss a promo code or platform-exclusive deal?
+1. Booking audit checklist (per booking): Ask me:
+   - Did I compare at least 3 sources for the same product?
+   - Is there a cheaper option with similar policies?
+   - Are there hidden fees/add-ons I can avoid (bags, seats, resort fees, transfers)?
+   - Is the cancellation policy too risky for my situation?
 
-2. Rebooking decision framework: For any booking where I missed rewards, help me evaluate:
-   - Is the booking cancellable/refundable? What's the cancellation cost?
-   - How much rebates/rewards would I earn if I rebooked through a platform?
-   - Is the net gain (rewards minus cancellation cost) worth the hassle?
-   - Are prices still similar, or has the rate gone up since I booked?
+2. Rebooking decision framework: For any booking, help me evaluate:
+   - Is it refundable/cancellable? What’s the fee?
+   - Is the net savings worth it after fees and time?
+   - Does rebooking make the trip more fragile (multiple policies/support channels)?
 
-3. Not-yet-booked opportunities: For trip components I haven't booked yet, create a checklist:
-   - Activities & tours: check rewards platform for activity marketplaces
-   - Dining: any restaurant booking platforms with rewards?
-   - Airport transfers: check for pre-booked options on rewards-eligible platforms
-   - Shopping: check for department stores, outlets, or duty-free with platform rewards
-   - Travel insurance: often available through rewards platforms
+3. Not-yet-booked checklist: Create a prioritized list of what to book next (and what to keep flexible), with money-saving tactics for each.
 
-4. Quick wins: Identify the 3 highest-impact, lowest-effort changes I can still make to earn more rewards on this trip.
+4. Quick wins: Identify the top 3 highest-impact, lowest-effort changes I can still make.
 
-5. Future prevention: Suggest I save the Pre-Booking Rewards SOP prompt so I start with a rewards strategy from the beginning next time.
-
-6. Suggest 1–2 follow-up prompts for evaluating whether specific rebookings are worth it.`,
+5. Suggest 1–2 follow-up prompts after I paste my booking details.`,
   },
 ];
