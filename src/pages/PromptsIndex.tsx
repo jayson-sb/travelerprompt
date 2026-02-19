@@ -18,6 +18,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
   promptLibrary,
   categories,
   type PromptEntry,
@@ -49,6 +56,12 @@ const preparePromptText = (prompt: PromptEntry) =>
     return `[${key}]`;
   });
 
+const hydrateTemplate = (template: string, values: Record<string, string>) =>
+  template.replace(/\{\{(.*?)\}\}/g, (_match, key) => {
+    const trimmed = String(key).trim();
+    return values[trimmed]?.trim() ? values[trimmed].trim() : `[${trimmed}]`;
+  });
+
 const aiServices = [
   {
     name: "ChatGPT",
@@ -78,11 +91,179 @@ const aiServices = [
   },
 ] as const;
 
+const PromptCustomizeDialog = ({
+  prompt,
+  open,
+  onOpenChange,
+}: {
+  prompt: PromptEntry;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}) => {
+  const [values, setValues] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    if (!open) return;
+    const initialValues = (prompt.variables ?? []).reduce<Record<string, string>>(
+      (acc, variable) => {
+        acc[variable.key] = "";
+        return acc;
+      },
+      {}
+    );
+    setValues(initialValues);
+  }, [open, prompt]);
+
+  const renderedPrompt = useMemo(
+    () => hydrateTemplate(prompt.promptTemplate, values),
+    [prompt.promptTemplate, values]
+  );
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(renderedPrompt);
+      trackEvent({
+        name: "prompt_copy",
+        payload: {
+          slug: prompt.id,
+          variables: values,
+        },
+      });
+      toast.success("Prompt copied to clipboard");
+      onOpenChange(false);
+    } catch {
+      toast.error("Copy failed. Please try again.");
+    }
+  };
+
+  const handleOpenIn = async (service: (typeof aiServices)[number]) => {
+    try {
+      await navigator.clipboard.writeText(renderedPrompt);
+      trackEvent({
+        name: "outbound_click",
+        payload: { slug: prompt.id, destination: service.name, variables: values },
+      });
+      window.open(service.buildUrl(renderedPrompt), "_blank", "noreferrer");
+      toast.success(
+        service.prefills
+          ? `Opening ${service.name}…`
+          : `Prompt copied! Paste it in ${service.name}.`
+      );
+      onOpenChange(false);
+    } catch {
+      window.open(service.buildUrl(renderedPrompt), "_blank", "noreferrer");
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-h-[85vh] max-w-2xl overflow-hidden rounded-2xl border-slate-200 p-0">
+        <div className="flex max-h-[85vh] flex-col">
+          <DialogHeader className="border-b border-slate-100 px-5 pb-4 pt-5 text-left sm:px-6">
+            <div className="mb-2 flex items-center gap-2">
+              <Badge
+                variant="secondary"
+                className="rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-semibold text-slate-600"
+              >
+                {prompt.category}
+              </Badge>
+            </div>
+            <DialogTitle className="text-xl font-bold leading-tight text-slate-900">
+              {prompt.title}
+            </DialogTitle>
+            <DialogDescription className="text-sm text-slate-500">
+              Fill in details for this prompt before copying or opening it.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-5 overflow-y-auto px-5 py-4 sm:px-6">
+            {prompt.variables?.length ? (
+              <div className="grid gap-4 sm:grid-cols-2">
+                {prompt.variables.map((variable) => (
+                  <div key={variable.key} className="space-y-2">
+                    <label className="text-sm font-medium text-slate-700">
+                      {variable.label}
+                    </label>
+                    <Input
+                      placeholder={variable.placeholder}
+                      value={values[variable.key] ?? ""}
+                      onChange={(event) =>
+                        setValues((prev) => ({
+                          ...prev,
+                          [variable.key]: event.target.value,
+                        }))
+                      }
+                    />
+                    {variable.example ? (
+                      <p className="text-xs text-slate-500">
+                        Example: {variable.example}
+                      </p>
+                    ) : null}
+                  </div>
+                ))}
+              </div>
+            ) : null}
+
+            <div className="space-y-2">
+              <p className="text-sm font-semibold text-slate-700">Prompt preview</p>
+              <div className="max-h-72 overflow-y-auto rounded-2xl border border-slate-200 bg-slate-50/70 p-4">
+                <pre className="whitespace-pre-wrap text-sm leading-relaxed text-slate-700">
+                  {renderedPrompt}
+                </pre>
+              </div>
+            </div>
+          </div>
+
+          <div className="border-t border-slate-100 p-4 sm:p-5">
+            <div className="flex w-full items-center gap-2 sm:gap-3">
+              <Button
+                variant="ghost"
+                className="flex-1 gap-2 rounded-lg border border-slate-200 text-xs font-medium text-slate-700 sm:text-sm"
+                onClick={handleCopy}
+              >
+                <Copy className="h-4 w-4" />
+                Copy
+              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button className="flex-1 gap-2 rounded-lg bg-[#ff3407] text-xs font-medium text-white shadow-md shadow-[#ff3407]/20 sm:text-sm">
+                    Open in
+                    <ChevronDown className="h-4 w-4 opacity-70" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48 rounded-xl border-slate-100 p-1 shadow-xl shadow-black/5">
+                  {aiServices.map((service) => (
+                    <DropdownMenuItem
+                      key={service.name}
+                      className="cursor-pointer gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-600 focus:bg-[#ff3407]/5 focus:text-[#ff3407]"
+                      onClick={() => handleOpenIn(service)}
+                    >
+                      <service.icon className="h-4 w-4" />
+                      {service.name}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
 const PromptCard = ({ prompt }: { prompt: PromptEntry }) => {
   const text = preparePromptText(prompt);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const hasVariables = Boolean(prompt.variables?.length);
 
   const handleCopy = async () => {
+    if (hasVariables) {
+      setDialogOpen(true);
+      return;
+    }
+
     try {
       await navigator.clipboard.writeText(text);
       trackEvent({ name: "prompt_copy", payload: { slug: prompt.id } });
@@ -93,6 +274,11 @@ const PromptCard = ({ prompt }: { prompt: PromptEntry }) => {
   };
 
   const handleOpenIn = async (service: (typeof aiServices)[number]) => {
+    if (hasVariables) {
+      setDialogOpen(true);
+      return;
+    }
+
     try {
       await navigator.clipboard.writeText(text);
       trackEvent({
@@ -113,72 +299,82 @@ const PromptCard = ({ prompt }: { prompt: PromptEntry }) => {
   const active = dropdownOpen;
 
   return (
-    <Card className={`hover-card flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all duration-300 ${active ? "border-[#ff3407]/30 shadow-xl shadow-[#ff3407]/5" : ""}`}>
-      <CardHeader className="gap-3 pb-3 pt-4 sm:gap-4 sm:pt-5">
-        <div className="flex items-center justify-between">
-          <Badge
-            variant="secondary"
-            className={`hover-badge rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-semibold text-slate-600 transition-colors sm:px-2.5 sm:text-xs ${active ? "bg-[#ff3407]/10 text-[#ff3407]" : ""}`}
-          >
-            {prompt.category}
-          </Badge>
-        </div>
-        <div className="space-y-1.5 sm:space-y-2">
-          <CardTitle className={`hover-title text-lg font-bold leading-tight tracking-tight text-slate-900 transition-colors duration-300 sm:text-xl ${active ? "text-[#ff3407]" : ""}`}>
-            {prompt.title}
-          </CardTitle>
-          <CardDescription className="line-clamp-3 text-sm leading-relaxed text-slate-500 sm:text-base">
-            {prompt.summary}
-          </CardDescription>
-        </div>
-      </CardHeader>
-      <CardContent className="flex flex-wrap gap-1.5 pb-4 pt-0 sm:gap-2 sm:pb-6">
-        {prompt.tags.slice(0, 3).map((tag) => (
-          <span
-            key={tag}
-            className={`hover-tag inline-flex items-center rounded-full border border-slate-100 bg-slate-50 px-2 py-0.5 text-[10px] font-medium text-slate-500 transition-colors sm:px-2.5 sm:text-[11px] ${active ? "border-[#ff3407]/10 bg-[#ff3407]/5 text-[#ff3407]/80" : ""}`}
-          >
-            #{tag}
-          </span>
-        ))}
-      </CardContent>
-      <CardFooter className="mt-auto p-4 pt-0 sm:p-5 sm:pt-0">
-        <div className="flex w-full items-center gap-2 sm:gap-3">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="hover-copy flex-1 gap-1.5 rounded-lg border border-slate-200 text-xs font-medium text-slate-600 sm:gap-2 sm:text-sm"
-            onClick={handleCopy}
-          >
-            <Copy className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-            Copy
-          </Button>
-          <DropdownMenu onOpenChange={setDropdownOpen}>
-            <DropdownMenuTrigger asChild>
-              <Button
-                size="sm"
-                className="hover-open flex-1 gap-1.5 rounded-lg bg-[#ff3407] text-xs font-medium text-white shadow-md shadow-[#ff3407]/20 transition-all sm:gap-2 sm:text-sm"
-              >
-                Open in
-                <ChevronDown className="h-3.5 w-3.5 opacity-70 sm:h-4 sm:w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48 rounded-xl border-slate-100 p-1 shadow-xl shadow-black/5">
-              {aiServices.map((service) => (
-                <DropdownMenuItem
-                  key={service.name}
-                  className="cursor-pointer gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-600 focus:bg-[#ff3407]/5 focus:text-[#ff3407]"
-                  onClick={() => handleOpenIn(service)}
+    <>
+      <Card className={`hover-card flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all duration-300 ${active ? "border-[#ff3407]/30 shadow-xl shadow-[#ff3407]/5" : ""}`}>
+        <CardHeader className="gap-3 pb-3 pt-4 sm:gap-4 sm:pt-5">
+          <div className="flex items-center justify-between">
+            <Badge
+              variant="secondary"
+              className={`hover-badge rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-semibold text-slate-600 transition-colors sm:px-2.5 sm:text-xs ${active ? "bg-[#ff3407]/10 text-[#ff3407]" : ""}`}
+            >
+              {prompt.category}
+            </Badge>
+          </div>
+          <div className="space-y-1.5 sm:space-y-2">
+            <CardTitle className={`hover-title text-lg font-bold leading-tight tracking-tight text-slate-900 transition-colors duration-300 sm:text-xl ${active ? "text-[#ff3407]" : ""}`}>
+              {prompt.title}
+            </CardTitle>
+            <CardDescription className="line-clamp-3 text-sm leading-relaxed text-slate-500 sm:text-base">
+              {prompt.summary}
+            </CardDescription>
+          </div>
+        </CardHeader>
+        <CardContent className="flex flex-wrap gap-1.5 pb-4 pt-0 sm:gap-2 sm:pb-6">
+          {prompt.tags.slice(0, 3).map((tag) => (
+            <span
+              key={tag}
+              className={`hover-tag inline-flex items-center rounded-full border border-slate-100 bg-slate-50 px-2 py-0.5 text-[10px] font-medium text-slate-500 transition-colors sm:px-2.5 sm:text-[11px] ${active ? "border-[#ff3407]/10 bg-[#ff3407]/5 text-[#ff3407]/80" : ""}`}
+            >
+              #{tag}
+            </span>
+          ))}
+        </CardContent>
+        <CardFooter className="mt-auto p-4 pt-0 sm:p-5 sm:pt-0">
+          <div className="flex w-full items-center gap-2 sm:gap-3">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="hover-copy flex-1 gap-1.5 rounded-lg border border-slate-200 text-xs font-medium text-slate-600 sm:gap-2 sm:text-sm"
+              onClick={handleCopy}
+            >
+              <Copy className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+              Copy
+            </Button>
+            <DropdownMenu onOpenChange={setDropdownOpen}>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  size="sm"
+                  className="hover-open flex-1 gap-1.5 rounded-lg bg-[#ff3407] text-xs font-medium text-white shadow-md shadow-[#ff3407]/20 transition-all sm:gap-2 sm:text-sm"
                 >
-                  <service.icon className="h-4 w-4" />
-                  {service.name}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      </CardFooter>
-    </Card>
+                  Open in
+                  <ChevronDown className="h-3.5 w-3.5 opacity-70 sm:h-4 sm:w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48 rounded-xl border-slate-100 p-1 shadow-xl shadow-black/5">
+                {aiServices.map((service) => (
+                  <DropdownMenuItem
+                    key={service.name}
+                    className="cursor-pointer gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-600 focus:bg-[#ff3407]/5 focus:text-[#ff3407]"
+                    onClick={() => handleOpenIn(service)}
+                  >
+                    <service.icon className="h-4 w-4" />
+                    {service.name}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </CardFooter>
+      </Card>
+
+      {hasVariables ? (
+        <PromptCustomizeDialog
+          prompt={prompt}
+          open={dialogOpen}
+          onOpenChange={setDialogOpen}
+        />
+      ) : null}
+    </>
   );
 };
 
