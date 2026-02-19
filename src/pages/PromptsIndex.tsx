@@ -259,11 +259,6 @@ const PromptCard = ({ prompt }: { prompt: PromptEntry }) => {
   const hasVariables = Boolean(prompt.variables?.length);
 
   const handleCopy = async () => {
-    if (hasVariables) {
-      setDialogOpen(true);
-      return;
-    }
-
     try {
       await navigator.clipboard.writeText(text);
       trackEvent({ name: "prompt_copy", payload: { slug: prompt.id } });
@@ -296,7 +291,7 @@ const PromptCard = ({ prompt }: { prompt: PromptEntry }) => {
     }
   };
 
-  const active = dropdownOpen;
+  const active = dropdownOpen || dialogOpen;
 
   return (
     <>
@@ -340,29 +335,39 @@ const PromptCard = ({ prompt }: { prompt: PromptEntry }) => {
               <Copy className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               Copy
             </Button>
-            <DropdownMenu onOpenChange={setDropdownOpen}>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  size="sm"
-                  className="hover-open flex-1 gap-1.5 rounded-lg bg-[#ff3407] text-xs font-medium text-white shadow-md shadow-[#ff3407]/20 transition-all sm:gap-2 sm:text-sm"
-                >
-                  Open in
-                  <ChevronDown className="h-3.5 w-3.5 opacity-70 sm:h-4 sm:w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48 rounded-xl border-slate-100 p-1 shadow-xl shadow-black/5">
-                {aiServices.map((service) => (
-                  <DropdownMenuItem
-                    key={service.name}
-                    className="cursor-pointer gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-600 focus:bg-[#ff3407]/5 focus:text-[#ff3407]"
-                    onClick={() => handleOpenIn(service)}
+            {hasVariables ? (
+              <Button
+                size="sm"
+                className="hover-open flex-1 gap-1.5 rounded-lg bg-[#ff3407] text-xs font-medium text-white shadow-md shadow-[#ff3407]/20 transition-all sm:gap-2 sm:text-sm"
+                onClick={() => setDialogOpen(true)}
+              >
+                Use this prompt
+              </Button>
+            ) : (
+              <DropdownMenu onOpenChange={setDropdownOpen}>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    size="sm"
+                    className="hover-open flex-1 gap-1.5 rounded-lg bg-[#ff3407] text-xs font-medium text-white shadow-md shadow-[#ff3407]/20 transition-all sm:gap-2 sm:text-sm"
                   >
-                    <service.icon className="h-4 w-4" />
-                    {service.name}
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
+                    Open in
+                    <ChevronDown className="h-3.5 w-3.5 opacity-70 sm:h-4 sm:w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48 rounded-xl border-slate-100 p-1 shadow-xl shadow-black/5">
+                  {aiServices.map((service) => (
+                    <DropdownMenuItem
+                      key={service.name}
+                      className="cursor-pointer gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-600 focus:bg-[#ff3407]/5 focus:text-[#ff3407]"
+                      onClick={() => handleOpenIn(service)}
+                    >
+                      <service.icon className="h-4 w-4" />
+                      {service.name}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
           </div>
         </CardFooter>
       </Card>
