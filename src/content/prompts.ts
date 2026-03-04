@@ -55,13 +55,12 @@ export const buildPreamble = (prompt: PromptEntry): string => {
   return [
     role,
     "",
-    "Before answering, check if you have enough context to give a genuinely useful, personalized answer.",
-    "- If critical details are missing that would significantly change your recommendation, ask me up to 3 focused clarifying questions FIRST — then wait for my reply before proceeding.",
-    "- If you can give a strong answer with reasonable assumptions, go ahead — clearly label every assumption so I can correct it.",
-    "- Anything in double angle brackets (e.g. <<Destination city>>) is info I haven't provided yet. Ask me for it or make a reasonable assumption.",
+    "Before answering:",
+    "- Do not assume anything.",
+    "- If any detail is missing or unclear, ask before generating.",
+    "- Anything in square brackets in ALL CAPS (e.g. [DESTINATION]) is a placeholder I haven't filled in — ask for it before generating.",
     "- If you reference prices, hours, or availability, note they may change and briefly suggest how I can verify.",
     "- Your training data has a cutoff date. For any specific business, price, or schedule you mention, flag it with [verify] and suggest how to check (e.g. Google Maps, official site, recent reviews).",
-    "- Rate your confidence: use [high confidence] for well-established facts and [check before going] for things that may have changed since your training data.",
     "- Prefer specific, named places over generic descriptions. If you can't name a specific place with confidence, say so rather than inventing one.",
     "",
     outputInstruction,
@@ -94,7 +93,7 @@ export const promptLibrary: PromptEntry[] = [
       { key: "destination", label: "Destination city", placeholder: "e.g. Osaka", example: "Osaka" },
       { key: "days", label: "Number of days", placeholder: "e.g. 3 / 5 / 10", example: "5" },
       { key: "vibe", label: "Trip vibe", placeholder: "e.g. culture + street food / adventure / relaxed", example: "culture + street food" },
-      { key: "party", label: "Travel party", placeholder: "solo / couple / family / friends", example: "couple" },
+      { key: "travel_party", label: "Travel party", placeholder: "solo / couple / family / friends", example: "couple" },
       { key: "month", label: "Travel month", placeholder: "e.g. November", example: "November" },
     ],
     whenToUse: [
@@ -102,7 +101,7 @@ export const promptLibrary: PromptEntry[] = [
       "When you want a plan you can actually follow — timed slots, transit, and backup options",
       "When you've been before (or done your research) and just need the schedule built",
     ],
-    promptTemplate: `I'm planning a trip to {{destination}} for {{days}} days in {{month}}. I'm traveling as a {{party}} and the vibe I want is: {{vibe}}.
+    promptTemplate: `I'm planning a trip to [DESTINATION] for [DAYS] days in [MONTH]. I'm traveling as a [TRAVEL_PARTY] and the vibe I want is: [VIBE].
 
 Build a day-by-day itinerary:
 
@@ -140,7 +139,7 @@ For every specific place you recommend, include one way I can verify it's still 
     variables: [
       { key: "destination", label: "Destination city", placeholder: "e.g. Tokyo", example: "Tokyo" },
       { key: "days", label: "Number of days", placeholder: "e.g. 5", example: "5" },
-      { key: "party", label: "Travel party", placeholder: "solo / couple / family / friends", example: "friends" },
+      { key: "travel_party", label: "Travel party", placeholder: "solo / couple / family / friends", example: "friends" },
       { key: "interests", label: "Top interests", placeholder: "e.g. food, temples, nightlife, shopping", example: "food, temples, nightlife" },
       { key: "month", label: "Travel month", placeholder: "e.g. March", example: "March" },
     ],
@@ -149,7 +148,7 @@ For every specific place you recommend, include one way I can verify it's still 
       "When you need to understand the city layout, norms, and what's actually worth the hype",
       "When you want orientation + itinerary together (not just a schedule)",
     ],
-    promptTemplate: `I'm visiting {{destination}} for the first time — {{days}} days in {{month}}. I'm traveling as a {{party}} and my top interests are: {{interests}}.
+    promptTemplate: `I'm visiting [DESTINATION] for the first time — [DAYS] days in [MONTH]. I'm traveling as a [TRAVEL_PARTY] and my top interests are: [INTERESTS].
 
 Create a complete first-timer city plan:
 
@@ -171,7 +170,7 @@ Create a complete first-timer city plan:
    - Key phrases in the local language
    - Safety notes specific to this city
 
-5. WEATHER-ADJUSTED TIPS: For {{month}}, flag weather considerations and suggest indoor alternatives for rainy/hot days.
+5. WEATHER-ADJUSTED TIPS: For [MONTH], flag weather considerations and suggest indoor alternatives for rainy/hot days.
 
 6. ONE FREE DAY TEMPLATE: Leave one day as a flexible "choose your own adventure" with 5 options ranked by vibe (relaxed, active, cultural, foodie, off-beat).
 
@@ -191,7 +190,7 @@ For every specific place you recommend, include one way I can verify it's still 
     variables: [
       { key: "cities", label: "Cities to visit", placeholder: "e.g. Bangkok, Chiang Mai, Krabi", example: "Bangkok, Chiang Mai, Krabi" },
       { key: "days", label: "Total days available", placeholder: "e.g. 12", example: "12" },
-      { key: "party", label: "Travel party", placeholder: "solo / couple / family / friends", example: "couple" },
+      { key: "travel_party", label: "Travel party", placeholder: "solo / couple / family / friends", example: "couple" },
       { key: "pace", label: "Travel pace", placeholder: "packed / balanced / relaxed", example: "balanced" },
     ],
     whenToUse: [
@@ -199,7 +198,7 @@ For every specific place you recommend, include one way I can verify it's still 
       "When you want to minimize wasted transit time",
       "When you need help deciding how many days per city",
     ],
-    promptTemplate: `I want to visit these cities: {{cities}}. I have {{days}} total days, traveling as a {{party}}, and prefer a {{pace}} pace.
+    promptTemplate: `I want to visit these cities: [CITIES]. I have [DAYS] total days, traveling as a [TRAVEL_PARTY], and prefer a [PACE] pace.
 
 Design the optimal multi-city route:
 
@@ -217,7 +216,7 @@ Design the optimal multi-city route:
 
 5. ALTERNATIVE ROUTE: Provide one alternative ordering with a clear explanation of what's different (e.g. "if you want to end at a beach" or "if this flight is cheaper").
 
-6. MASTER TIMELINE: A single visual timeline showing Day 1–{{days}} with city, key activity, and transit legs.`,
+6. MASTER TIMELINE: A single visual timeline showing Day 1–[DAYS] with city, key activity, and transit legs.`,
   },
   {
     id: "vibes-to-itinerary",
@@ -242,9 +241,9 @@ Design the optimal multi-city route:
       "When you're tired of 'top 10' lists and want something personal",
       "When you want AI to match your mood to a real trip",
     ],
-    promptTemplate: `Here's the vibe I want for my next trip: "{{vibe}}"
+    promptTemplate: `Here's the vibe I want for my next trip: "[VIBE]"
 
-I have {{days}} days, prefer {{region}}, {{budget}} budget, traveling in {{month}}.
+I have [DAYS] days, prefer [REGION], [BUDGET] budget, traveling in [MONTH].
 
 Turn this vibe into a real, bookable itinerary:
 
@@ -285,11 +284,11 @@ Turn this vibe into a real, bookable itinerary:
       "When you want to avoid losing a full day to bad weather",
       "When you want indoor alternatives that are actually exciting, not filler",
     ],
-    promptTemplate: `I'm going to {{destination}} for {{days}} days in {{month}}. My interests are: {{interests}}.
+    promptTemplate: `I'm going to [DESTINATION] for [DAYS] days in [MONTH]. My interests are: [INTERESTS].
 
 Build a weather-contingency plan:
 
-1. WEATHER BRIEFING: What should I realistically expect in {{month}}? Break it down — how many rainy days, what time rain usually hits, how long it lasts, temperature range.
+1. WEATHER BRIEFING: What should I realistically expect in [MONTH]? Break it down — how many rainy days, what time rain usually hits, how long it lasts, temperature range.
 
 2. TIMING SHIFTS: Which outdoor activities are better moved to morning vs afternoon based on typical weather patterns? Create an "ideal weather schedule" vs "rainy day schedule."
 
@@ -319,7 +318,7 @@ Build a weather-contingency plan:
     tags: ["neighborhoods", "where to stay", "comparison", "accommodation"],
     variables: [
       { key: "destination", label: "Destination city", placeholder: "e.g. Bangkok", example: "Bangkok" },
-      { key: "party", label: "Travel party", placeholder: "solo / couple / family / friends", example: "couple" },
+      { key: "travel_party", label: "Travel party", placeholder: "solo / couple / family / friends", example: "couple" },
       { key: "priorities", label: "What matters most", placeholder: "e.g. walkability, nightlife, food, quiet, central", example: "walkability, food, central" },
       { key: "budget", label: "Nightly accommodation budget", placeholder: "e.g. $80–120/night", example: "$80–120/night" },
       { key: "days", label: "Trip length (days)", placeholder: "e.g. 5", example: "5" },
@@ -329,7 +328,7 @@ Build a weather-contingency plan:
       "When Reddit threads give conflicting advice",
       "When you want a fast comparison based on your actual priorities",
     ],
-    promptTemplate: `I'm spending {{days}} days in {{destination}}, traveling as a {{party}}, with a nightly budget around {{budget}}. What matters most to me: {{priorities}}.
+    promptTemplate: `I'm spending [DAYS] days in [DESTINATION], traveling as a [TRAVEL_PARTY], with a nightly budget around [BUDGET]. What matters most to me: [PRIORITIES].
 
 Help me pick the best neighborhood:
 
@@ -348,7 +347,7 @@ Help me pick the best neighborhood:
 
 4. WHERE TO BOOK: Suggest the exact sub-area or streets within that neighborhood (e.g. "stay near Thonglor Soi 13–17 for the best mix of restaurants and quiet side streets").
 
-5. RUNNER-UP: A second option that's better if I value [X] more — explain the tradeoff clearly.`,
+5. RUNNER-UP: A second option that's better if I value a different priority — explain the tradeoff clearly.`,
   },
   {
     id: "neighborhood-walking-guide",
@@ -372,7 +371,7 @@ Help me pick the best neighborhood:
       "When you have a half-day to fill and want a curated walk",
       "When you want the kind of tips a local friend would give you",
     ],
-    promptTemplate: `I want to explore {{neighborhood}} in about {{hours}} hours, visiting in {{month}}. My interests: {{interests}}.
+    promptTemplate: `I want to explore [NEIGHBORHOOD] in about [HOURS] hours, visiting in [MONTH]. My interests: [INTERESTS].
 
 Create a neighborhood deep-dive walking guide:
 
@@ -405,7 +404,7 @@ Create a neighborhood deep-dive walking guide:
     tags: ["comparison", "personalized", "traveler type", "ranking"],
     variables: [
       { key: "destination", label: "Destination city", placeholder: "e.g. Lisbon", example: "Lisbon" },
-      { key: "type", label: "Traveler type", placeholder: "e.g. foodie / nightlife / family / culture / digital nomad", example: "foodie" },
+      { key: "traveler_type", label: "Traveler type", placeholder: "e.g. foodie / nightlife / family / culture / digital nomad", example: "foodie" },
       { key: "budget", label: "Budget level", placeholder: "budget / mid-range / comfort", example: "mid-range" },
       { key: "days", label: "Trip length (days)", placeholder: "e.g. 5", example: "5" },
       { key: "month", label: "Travel month", placeholder: "e.g. October", example: "October" },
@@ -415,11 +414,11 @@ Create a neighborhood deep-dive walking guide:
       "When you want areas ranked specifically for your interests",
       "When you want to understand the real tradeoffs between areas",
     ],
-    promptTemplate: `I'm a {{type}} traveler heading to {{destination}} for {{days}} days in {{month}}, on a {{budget}} budget.
+    promptTemplate: `I'm a [TRAVELER_TYPE] traveler heading to [DESTINATION] for [DAYS] days in [MONTH], on a [BUDGET] budget.
 
 Rank the neighborhoods for my traveler type:
 
-1. TOP 5 AREAS RANKED: Rank the best neighborhoods specifically for a {{type}} traveler. For each:
+1. TOP 5 AREAS RANKED: Rank the best neighborhoods specifically for a [TRAVELER_TYPE] traveler. For each:
    - Why it's ranked here (specific to my type, not generic)
    - The single best thing about it for someone like me
    - The honest downside
@@ -427,11 +426,11 @@ Rank the neighborhoods for my traveler type:
 
 2. HEAD-TO-HEAD: Take the top 2 areas and do a detailed comparison — what's the real difference in daily experience? Paint a picture of "a typical day staying here" for each.
 
-3. AVOID LIST: 1–2 neighborhoods that look good online but would disappoint a {{type}} traveler, and why.
+3. AVOID LIST: 1–2 neighborhoods that look good online but would disappoint a [TRAVELER_TYPE] traveler, and why.
 
 4. HYBRID STRATEGY: If I have 5+ days, should I split between 2 neighborhoods? Which combo works best and why?
 
-5. INSIDER MOVE: One neighborhood that's not in most guides but is perfect for a {{type}} traveler — explain why it's underrated.`,
+5. INSIDER MOVE: One neighborhood that's not in most guides but is perfect for a [TRAVELER_TYPE] traveler — explain why it's underrated.`,
   },
 
   // ── Food & Drink ──────────────────────────────────────────────────────
@@ -448,7 +447,7 @@ Rank the neighborhoods for my traveler type:
     tags: ["food crawl", "street food", "route", "eating"],
     variables: [
       { key: "destination", label: "City or neighborhood", placeholder: "e.g. Penang, George Town", example: "Penang, George Town" },
-      { key: "party", label: "Travel party", placeholder: "solo / couple / friends", example: "friends" },
+      { key: "travel_party", label: "Travel party", placeholder: "solo / couple / friends", example: "friends" },
       { key: "duration", label: "Duration", placeholder: "e.g. half-day / full-day", example: "half-day" },
       { key: "dietary", label: "Dietary restrictions (if any)", placeholder: "e.g. none / vegetarian / halal / no shellfish", example: "none" },
     ],
@@ -457,7 +456,7 @@ Rank the neighborhoods for my traveler type:
       "When you want a structured eating route (not just a list of restaurants)",
       "When you want to eat like a local, not a tourist",
     ],
-    promptTemplate: `Build a {{duration}} food crawl through {{destination}} for a {{party}} group. Dietary restrictions: {{dietary}}.
+    promptTemplate: `Build a [DURATION] food crawl through [DESTINATION] for a [TRAVEL_PARTY] group. Dietary restrictions: [DIETARY].
 
 1. FOOD CRAWL ROUTE (6–10 stops): For each stop:
    - Name of the place (or stall/hawker description if unnamed)
@@ -501,7 +500,7 @@ For every specific place you recommend, include one way I can verify it's still 
       "When you want a meal plan organized by neighborhood and day",
       "When you want to understand what and how locals eat",
     ],
-    promptTemplate: `I'm in {{destination}} for {{days}} days. I love: {{food_style}}. Budget level: {{budget}}.
+    promptTemplate: `I'm in [DESTINATION] for [DAYS] days. I love: [FOOD_STYLE]. Budget level: [BUDGET].
 
 Create a local food guide:
 
@@ -539,7 +538,7 @@ For every specific place you recommend, include one way I can verify it's still 
     variables: [
       { key: "destination", label: "City or area", placeholder: "e.g. Taipei", example: "Taipei" },
       { key: "market_type", label: "Market preference", placeholder: "e.g. night markets / morning markets / both", example: "night markets" },
-      { key: "party", label: "Travel party", placeholder: "solo / couple / friends", example: "couple" },
+      { key: "travel_party", label: "Travel party", placeholder: "solo / couple / friends", example: "couple" },
       { key: "dietary", label: "Dietary restrictions (if any)", placeholder: "e.g. none / vegetarian / halal / no shellfish", example: "none" },
     ],
     whenToUse: [
@@ -547,7 +546,7 @@ For every specific place you recommend, include one way I can verify it's still 
       "When you don't want to wander aimlessly and miss the best stalls",
       "When you need practical tips for navigating markets confidently",
     ],
-    promptTemplate: `I want to explore {{market_type}} in {{destination}}, traveling as a {{party}}. Dietary restrictions: {{dietary}}.
+    promptTemplate: `I want to explore [MARKET_TYPE] in [DESTINATION], traveling as a [TRAVEL_PARTY]. Dietary restrictions: [DIETARY].
 
 Build a market and street food route:
 
@@ -589,7 +588,7 @@ Build a market and street food route:
     variables: [
       { key: "destination", label: "Destination city", placeholder: "e.g. Rome", example: "Rome" },
       { key: "interests", label: "Interests", placeholder: "e.g. history, architecture, food, photos", example: "history, architecture, food" },
-      { key: "party", label: "Travel party", placeholder: "solo / couple / family / friends", example: "couple" },
+      { key: "travel_party", label: "Travel party", placeholder: "solo / couple / family / friends", example: "couple" },
       { key: "pace", label: "Pace preference", placeholder: "packed / balanced / relaxed", example: "balanced" },
     ],
     whenToUse: [
@@ -597,7 +596,7 @@ Build a market and street food route:
       "When you need a route that connects stops logically",
       "When you want transit figured out between every stop",
     ],
-    promptTemplate: `Build a sightseeing route for {{destination}}. My interests: {{interests}}. Traveling as a {{party}} at a {{pace}} pace.
+    promptTemplate: `Build a sightseeing route for [DESTINATION]. My interests: [INTERESTS]. Traveling as a [TRAVEL_PARTY] at a [PACE] pace.
 
 1. THE ROUTE: Create a timed, numbered route from morning to evening:
    - Each stop: name, why it's worth it, how long to spend
@@ -631,7 +630,7 @@ For every specific place you recommend, include one way I can verify it's still 
     variables: [
       { key: "base_city", label: "Base city", placeholder: "e.g. Barcelona", example: "Barcelona" },
       { key: "interests", label: "Interests for the day trip", placeholder: "e.g. nature, wine, small towns, beaches, history", example: "nature, small towns" },
-      { key: "party", label: "Travel party", placeholder: "solo / couple / family / friends", example: "friends" },
+      { key: "travel_party", label: "Travel party", placeholder: "solo / couple / family / friends", example: "friends" },
       { key: "transport", label: "Transport preference", placeholder: "e.g. train only / car ok / any", example: "train only" },
       { key: "month", label: "Travel month", placeholder: "e.g. June", example: "June" },
     ],
@@ -640,7 +639,7 @@ For every specific place you recommend, include one way I can verify it's still 
       "When you're not sure which day trip is worth the travel time",
       "When you want a complete plan, not just 'go to X'",
     ],
-    promptTemplate: `I'm based in {{base_city}} and want to do a day trip in {{month}}. Interests: {{interests}}. Traveling as a {{party}}. Transport: {{transport}}.
+    promptTemplate: `I'm based in [BASE_CITY] and want to do a day trip in [MONTH]. Interests: [INTERESTS]. Traveling as a [TRAVEL_PARTY]. Transport: [TRANSPORT].
 
 1. TOP 3 DAY TRIP OPTIONS: Compare them:
    - Travel time (each way) and method
@@ -676,14 +675,14 @@ For every specific place you recommend, include one way I can verify it's still 
     variables: [
       { key: "destination", label: "Destination city", placeholder: "e.g. Kyoto", example: "Kyoto" },
       { key: "places", label: "Places I want to visit", placeholder: "e.g. Fushimi Inari, Arashiyama bamboo grove, Kinkaku-ji, Nishiki Market", example: "Fushimi Inari, Arashiyama bamboo grove, Kinkaku-ji, Nishiki Market" },
-      { key: "day", label: "Day of the week", placeholder: "e.g. Tuesday", example: "Tuesday" },
+      { key: "day_of_week", label: "Day of the week", placeholder: "e.g. Tuesday", example: "Tuesday" },
     ],
     whenToUse: [
       "When you have a list of places but need help with the optimal order",
       "When opening hours, closures, and transit could ruin a bad plan",
       "When you want to minimize time on transit and maximize time at destinations",
     ],
-    promptTemplate: `I want to visit these places in {{destination}}: {{places}}. The day of the week will be {{day}}.
+    promptTemplate: `I want to visit these places in [DESTINATION]: [PLACES]. The day of the week will be [DAY_OF_WEEK].
 
 Optimize my day around real-world constraints:
 
@@ -731,7 +730,7 @@ For every specific place you recommend, include one way I can verify it's still 
       "When you want the places a local friend would take you",
       "When you value authenticity over popularity",
     ],
-    promptTemplate: `I'm spending {{days}} days in {{destination}}. My interests: {{interests}}. I've already seen the standard tourist lists — give me the hidden gems.
+    promptTemplate: `I'm spending [DAYS] days in [DESTINATION]. My interests: [INTERESTS]. I've already seen the standard tourist lists — give me the hidden gems.
 
 1. 10 HIDDEN GEMS: For each:
    - Name and exact location (neighborhood + nearest landmark or transit stop)
@@ -762,7 +761,7 @@ For every specific place you recommend, include one way I can verify it's still 
     tags: ["experiences", "immersive", "culture", "local"],
     variables: [
       { key: "destination", label: "Destination city", placeholder: "e.g. Chiang Mai", example: "Chiang Mai" },
-      { key: "party", label: "Travel party", placeholder: "solo / couple / family / friends", example: "solo" },
+      { key: "travel_party", label: "Travel party", placeholder: "solo / couple / family / friends", example: "solo" },
       { key: "interests", label: "Experience interests", placeholder: "e.g. craft, cooking, music, nature, spirituality", example: "craft, cooking, nature" },
       { key: "budget", label: "Budget level", placeholder: "budget / mid-range / comfort", example: "mid-range" },
     ],
@@ -771,7 +770,7 @@ For every specific place you recommend, include one way I can verify it's still 
       "When you want to interact with local culture, not just observe it",
       "When you're looking for the experiences you'll tell stories about",
     ],
-    promptTemplate: `I'm visiting {{destination}} as a {{party}} traveler. My interests: {{interests}}. Budget: {{budget}}.
+    promptTemplate: `I'm visiting [DESTINATION] as a [TRAVEL_PARTY] traveler. My interests: [INTERESTS]. Budget: [BUDGET].
 
 Find unique local experiences:
 
@@ -815,7 +814,7 @@ Find unique local experiences:
       "When cultural context would make your trip more meaningful",
       "When you want to avoid unintentional cultural faux pas",
     ],
-    promptTemplate: `I'm visiting {{destination}} for {{days}} days. My cultural interests: {{interests}}.
+    promptTemplate: `I'm visiting [DESTINATION] for [DAYS] days. My cultural interests: [INTERESTS].
 
 Give me a cultural deep-dive:
 
@@ -855,7 +854,7 @@ Give me a cultural deep-dive:
       { key: "option_a", label: "Option A", placeholder: "e.g. Bali", example: "Bali" },
       { key: "option_b", label: "Option B", placeholder: "e.g. Phuket", example: "Phuket" },
       { key: "days", label: "Trip length (days)", placeholder: "e.g. 7", example: "7" },
-      { key: "party", label: "Travel party", placeholder: "solo / couple / family / friends", example: "couple" },
+      { key: "travel_party", label: "Travel party", placeholder: "solo / couple / family / friends", example: "couple" },
       { key: "priorities", label: "What matters most", placeholder: "e.g. food, beaches, culture, nightlife, budget", example: "food, beaches, budget" },
       { key: "month", label: "Travel month", placeholder: "e.g. August", example: "August" },
     ],
@@ -864,7 +863,7 @@ Give me a cultural deep-dive:
       "When you want a comparison based on YOUR priorities, not generic rankings",
       "When you need a clear recommendation with honest trade-offs",
     ],
-    promptTemplate: `I'm choosing between {{option_a}} and {{option_b}} for a {{days}}-day trip in {{month}}. Traveling as a {{party}}. What matters most to me: {{priorities}}.
+    promptTemplate: `I'm choosing between [OPTION_A] and [OPTION_B] for a [DAYS]-day trip in [MONTH]. Traveling as a [TRAVEL_PARTY]. What matters most to me: [PRIORITIES].
 
 Compare them head-to-head:
 
@@ -876,7 +875,7 @@ Compare them head-to-head:
    Budget | Mid-range | Comfortable
    Show estimated daily costs for accommodation, food, transport, and activities.
 
-4. WEATHER REALITY: For {{month}} specifically — what will the weather actually be like at each destination? Flag any dealbreakers (monsoon, extreme heat, etc.).
+4. WEATHER REALITY: For [MONTH] specifically — what will the weather actually be like at each destination? Flag any dealbreakers (monsoon, extreme heat, etc.).
 
 5. ITINERARY SNAPSHOT: For each destination, describe what a typical "best day" looks like — this often reveals which place you'd actually enjoy more.
 
@@ -896,16 +895,16 @@ Compare them head-to-head:
     variables: [
       { key: "destination", label: "Destination", placeholder: "e.g. Vietnam", example: "Vietnam" },
       { key: "days", label: "Trip length (days)", placeholder: "e.g. 10", example: "10" },
-      { key: "party", label: "Travel party", placeholder: "solo / couple / family / friends", example: "couple" },
-      { key: "style", label: "Travel style", placeholder: "budget / mid-range / comfort / luxury", example: "mid-range" },
-      { key: "origin", label: "Flying from", placeholder: "e.g. Singapore", example: "Singapore" },
+      { key: "travel_party", label: "Travel party", placeholder: "solo / couple / family / friends", example: "couple" },
+      { key: "travel_style", label: "Travel style", placeholder: "budget / mid-range / comfort / luxury", example: "mid-range" },
+      { key: "flying_from", label: "Flying from", placeholder: "e.g. Singapore", example: "Singapore" },
     ],
     whenToUse: [
       "When you need a realistic cost estimate before committing to a trip",
       "When you want to know where your money will actually go",
       "When you want clear strategies to save without downgrading the experience",
     ],
-    promptTemplate: `Estimate the total cost for a {{days}}-day trip to {{destination}} for a {{party}}, {{style}} style, flying from {{origin}}.
+    promptTemplate: `Estimate the total cost for a [DAYS]-day trip to [DESTINATION] for a [TRAVEL_PARTY], [TRAVEL_STYLE] style, flying from [FLYING_FROM].
 
 1. COST BREAKDOWN: Estimate realistic ranges for:
    - Flights (round-trip, economy)
@@ -924,7 +923,7 @@ Compare them head-to-head:
 
 3. TOP 5 SAVINGS LEVERS: The highest-impact ways to reduce cost without hurting the experience. Rank by savings potential.
 
-4. HIDDEN COSTS: 5 costs that travelers to {{destination}} commonly forget (visa, departure tax, tipping norms, tourist pricing, scam buffer).
+4. HIDDEN COSTS: 5 costs that travelers to [DESTINATION] commonly forget (visa, departure tax, tipping norms, tourist pricing, scam buffer).
 
 5. BOOKING TIMELINE: When to book each component for the best price.
 
@@ -945,14 +944,14 @@ Compare them head-to-head:
       { key: "destination", label: "Destination", placeholder: "e.g. Japan", example: "Japan" },
       { key: "days", label: "Trip length (days)", placeholder: "e.g. 14", example: "14" },
       { key: "month", label: "Travel month", placeholder: "e.g. April", example: "April" },
-      { key: "party", label: "Travel party", placeholder: "solo / couple / family / friends", example: "couple" },
+      { key: "travel_party", label: "Travel party", placeholder: "solo / couple / family / friends", example: "couple" },
     ],
     whenToUse: [
       "When you're 1–4 weeks before departure and want to make sure nothing's missed",
       "When you want a packing list specific to your destination and season",
       "When you want a timeline for pre-trip tasks (visa, bookings, etc.)",
     ],
-    promptTemplate: `Create a pre-trip checklist for {{days}} days in {{destination}} in {{month}}, traveling as a {{party}}.
+    promptTemplate: `Create a pre-trip checklist for [DAYS] days in [DESTINATION] in [MONTH], traveling as a [TRAVEL_PARTY].
 
 1. DOCUMENTS & ADMIN (4 weeks before):
    - Visa requirements and processing time
@@ -973,7 +972,7 @@ Compare them head-to-head:
    - Payment apps locals use
 
 4. PACKING LIST (destination + season specific):
-   - Weather-appropriate clothing (be specific for {{month}})
+   - Weather-appropriate clothing (be specific for [MONTH])
    - Footwear (based on typical activities)
    - Destination-specific items most people forget
    - Tech & charging (adaptor type, power bank needs)
@@ -1005,12 +1004,12 @@ Compare them head-to-head:
       "When the price isn't the whole story and you need to see real trade-offs",
       "When you want a clear recommendation, not just a list of pros and cons",
     ],
-    promptTemplate: `I need to decide: {{decision}}
+    promptTemplate: `I need to decide: [DECISION]
 
-Option A: {{option_a}}
-Option B: {{option_b}}
+Option A: [OPTION_A]
+Option B: [OPTION_B]
 
-My priorities: {{priorities}}
+My priorities: [PRIORITIES]
 
 Compare them:
 
@@ -1042,7 +1041,7 @@ Compare them:
     variables: [
       { key: "destination", label: "Destination", placeholder: "e.g. Portugal", example: "Portugal" },
       { key: "days", label: "Number of days", placeholder: "e.g. 7", example: "7" },
-      { key: "party", label: "Travel party", placeholder: "solo / couple / family / friends", example: "couple" },
+      { key: "travel_party", label: "Travel party", placeholder: "solo / couple / family / friends", example: "couple" },
       { key: "budget", label: "Budget level", placeholder: "budget / mid-range / comfort / luxury", example: "mid-range" },
       { key: "interests", label: "Top interests", placeholder: "e.g. food, history, beaches, wine", example: "food, history, beaches, wine" },
       { key: "month", label: "Travel month", placeholder: "e.g. May", example: "May" },
@@ -1052,7 +1051,7 @@ Compare them:
       "When you need a solid 80% starting point you can refine later",
       "When you're short on planning time and want to go from zero to bookable fast",
     ],
-    promptTemplate: `Plan my entire trip: {{days}} days in {{destination}} in {{month}}. Traveling as a {{party}}, {{budget}} budget. Interests: {{interests}}.
+    promptTemplate: `Plan my entire trip: [DAYS] days in [DESTINATION] in [MONTH]. Traveling as a [TRAVEL_PARTY], [BUDGET] budget. Interests: [INTERESTS].
 
 Give me a complete trip plan in one response:
 
@@ -1070,7 +1069,7 @@ Give me a complete trip plan in one response:
 
 5. BOOK AHEAD: What to reserve now vs what to leave flexible.
 
-6. WEATHER & PACKING: What to expect in {{month}} and the 5 most important items to pack.
+6. WEATHER & PACKING: What to expect in [MONTH] and the 5 most important items to pack.
 
 7. LOCAL TIPS: 5 insider tips that will save me time, money, or frustration.
 

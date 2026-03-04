@@ -58,9 +58,9 @@ const aiServices = [
 ] as const;
 
 const hydrateTemplate = (template: string, values: Record<string, string>) =>
-  template.replace(/\{\{(.*?)\}\}/g, (_match, key) => {
-    const trimmed = String(key).trim();
-    return values[trimmed] || `{{${trimmed}}}`;
+  template.replace(/\[([A-Z][A-Z0-9_]*)\]/g, (_match, key) => {
+    const lower = key.toLowerCase();
+    return values[lower] || `[${key}]`;
   });
 
 export const PromptDetail = ({ slug }: { slug?: string }) => {
