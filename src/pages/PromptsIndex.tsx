@@ -26,7 +26,7 @@ import {
   GeminiIcon,
   ClaudeIcon,
   PerplexityIcon,
-  ShopBackLogo,
+  // ShopBackLogo,
 } from "@/components/ai-service-icons";
 import { trackEvent } from "@/lib/analytics/analytics";
 import { Search, Copy, ChevronDown, ArrowDown } from "lucide-react";
@@ -41,33 +41,10 @@ const matchesSearch = (prompt: PromptEntry, query: string) => {
   return haystack.includes(query);
 };
 
-const applyVariableLabels = (template: string, prompt: PromptEntry) =>
-  template.replace(/\{\{\s*([^}]+?)\s*\}\}/g, (_match, rawKey) => {
-    const key = String(rawKey).trim();
-    const variable = prompt.variables?.find((v) => v.key === key);
-    const label = variable?.label ?? key;
-    return `<<${label}>>`;
-  });
-
 const buildPromptText = (prompt: PromptEntry) => {
   const preamble = buildPreamble(prompt);
-
-  const variableHints =
-    prompt.variables && prompt.variables.length
-      ? [
-          "",
-          "Here is context about my trip (ask me if you need more):",
-          ...prompt.variables.map((v) => {
-            const example = v.example ? ` (e.g. ${v.example})` : "";
-            return `- ${v.label}${example}`;
-          }),
-          "",
-        ].join("\n")
-      : "";
-
-  const core = applyVariableLabels(prompt.promptTemplate.trim(), prompt);
-
-  return [preamble, variableHints, core].filter(Boolean).join("\n");
+  const core = prompt.promptTemplate.trim();
+  return [preamble, core].filter(Boolean).join("\n\n");
 };
 
 const aiServices = [
@@ -203,12 +180,13 @@ const PromptCard = ({ prompt }: { prompt: PromptEntry }) => {
 
 const TypingText = () => {
   const phrases = [
-    "Find the cheapest Tokyo flight",
-    "Compare hotels in Bangkok",
-    "Build a 7-day Bali itinerary",
-    "Stack savings on your next trip",
-    "Discover hidden gems in Lisbon"
-];
+    "Discover where to go next",
+    "Compare destinations",
+    "Find hidden gems",
+    "Deep-dive into the culture",
+    "Get a trip plan in minutes",
+    "Find the best food",
+  ];
 
   const [currentPhraseIndex, setCurrentPhraseIndex] = useState(0);
   const [displayText, setDisplayText] = useState("");
@@ -288,9 +266,9 @@ export const PromptsIndex = ({
   };
 
   return (
-    <div className="flex flex-col gap-10 pb-16 sm:gap-12 sm:pb-24">
+    <div className="flex flex-col pb-16 sm:pb-24">
       {/* Hero */}
-      <section className="relative overflow-hidden bg-slate-50/50 px-4 py-16 sm:px-6 sm:py-24 lg:py-36">
+      <section className="relative overflow-hidden px-4 pt-16 pb-6 sm:px-6 sm:pt-24 sm:pb-10 lg:pt-28 lg:pb-12">
         {/* Animated line graphics background */}
         <svg
           className="absolute inset-0 h-full w-full"
@@ -353,7 +331,7 @@ export const PromptsIndex = ({
             d="M-100 600 C200 450, 500 700, 720 400 S1100 200, 1540 350"
             stroke="#ff3407"
             strokeWidth="1.5"
-            strokeOpacity="0.07"
+            strokeOpacity="0.18"
             fill="none"
           />
           <path
@@ -361,18 +339,18 @@ export const PromptsIndex = ({
             d="M-100 200 C150 350, 400 100, 720 300 S1050 500, 1540 250"
             stroke="#ff3407"
             strokeWidth="1.5"
-            strokeOpacity="0.06"
+            strokeOpacity="0.15"
             fill="none"
           />
 
           {/* Geometric circles */}
-          <circle className="circle-breathe-1" cx="200" cy="200" r="120" stroke="#ff3407" strokeWidth="0.8" strokeOpacity="0.06" fill="none" />
-          <circle className="circle-breathe-3" cx="1250" cy="550" r="100" stroke="#ff3407" strokeWidth="0.8" strokeOpacity="0.06" fill="none" />
+          <circle className="circle-breathe-1" cx="200" cy="200" r="120" stroke="#ff3407" strokeWidth="0.8" strokeOpacity="0.15" fill="none" />
+          <circle className="circle-breathe-3" cx="1250" cy="550" r="100" stroke="#ff3407" strokeWidth="0.8" strokeOpacity="0.15" fill="none" />
 
           {/* Accent dots */}
-          <circle className="dot-glow-1" cx="720" cy="400" r="3" fill="#ff3407" fillOpacity="0.1" />
-          <circle className="dot-glow-3" cx="200" cy="200" r="2.5" fill="#ff3407" fillOpacity="0.1" />
-          <circle className="dot-glow-4" cx="1250" cy="550" r="2.5" fill="#ff3407" fillOpacity="0.1" />
+          <circle className="dot-glow-1" cx="720" cy="400" r="3" fill="#ff3407" fillOpacity="0.25" />
+          <circle className="dot-glow-3" cx="200" cy="200" r="2.5" fill="#ff3407" fillOpacity="0.25" />
+          <circle className="dot-glow-4" cx="1250" cy="550" r="2.5" fill="#ff3407" fillOpacity="0.25" />
 
           {/* Subtle grid lines */}
           <line className="grid-line" x1="0" y1="200" x2="1440" y2="200" stroke="#cbd5e1" strokeWidth="0.4" strokeOpacity="0.3" strokeDasharray="8 16" />
@@ -382,14 +360,6 @@ export const PromptsIndex = ({
         {/* Radial fade mask over the lines */}
         <div className="absolute inset-0 [mask-image:radial-gradient(ellipse_70%_70%_at_50%_50%,#000_55%,transparent_100%)]" />
         <div className="mx-auto flex w-full max-w-5xl flex-col items-center text-center relative z-10">
-          <Badge
-            variant="outline"
-            className="gap-1.5 rounded-full border-primary/20 bg-primary/5 px-3 py-1 text-xs font-medium text-primary sm:gap-2 sm:px-4 sm:py-1.5 sm:text-sm"
-          >
-            <ShopBackLogo className="h-3 w-3 sm:h-3.5 sm:w-3.5 shrink-0" />
-            Travel prompts
-          </Badge>
-
           <h1 className="mt-5 max-w-4xl text-3xl font-extrabold tracking-tight text-slate-900 sm:mt-7 sm:text-5xl md:text-6xl">
             <span className="block bg-gradient-to-r from-[#ff3407] to-[#ffd6cd] bg-clip-text text-transparent min-h-[1.2em]">
               <TypingText />
@@ -401,25 +371,26 @@ export const PromptsIndex = ({
             Smart travel prompts for your next trip. Build itineraries, compare and discover based on your needs.
           </p>
 
-          <div className="mt-8 sm:mt-10">
+          <div className="mt-8 sm:mt-10 flex justify-center">
             <Button
               size="lg"
-              className="cursor-pointer gap-2 rounded-full bg-[#ff3407] px-8 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:bg-[#e62e06] sm:px-10 sm:py-3.5 sm:text-base"
+              variant="outline"
+              className="group cursor-pointer gap-2 rounded-full border-primary/20 bg-primary/5 px-8 py-3 text-sm font-medium text-primary shadow-none transition-all hover:bg-primary/10 hover:border-primary/30 hover:text-primary sm:px-10 sm:py-3.5 sm:text-base"
               onClick={() => {
                 cardsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
               }}
             >
               Explore prompts
-              <ArrowDown className="h-4 w-4" />
+              <ArrowDown className="animate-bounce h-4 w-4" />
             </Button>
           </div>
         </div>
         {/* Bottom gradient fade */}
-        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-b from-transparent to-white pointer-events-none" />
+        <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-b from-transparent to-white pointer-events-none" />
       </section>
 
       {/* Main Content */}
-      <section ref={cardsRef} className="scroll-mt-28 mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 sm:scroll-mt-24 sm:gap-10 sm:px-6">
+      <section ref={cardsRef} className="scroll-mt-28 mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 pt-6 sm:scroll-mt-24 sm:gap-10 sm:px-6 sm:pt-8">
 
         {/* Cards Grid */}
         <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 xl:grid-cols-4">
